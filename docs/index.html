@@ -43,7 +43,7 @@ svg{max-width:100%;height:auto}
 <li><a href="#resumo">Resumo</a></li><li><a href="#links">Links</a></li><li><a href="#arq">Arquitectura</a></li>
 <li><a href="#ligacao">Formulário ↔ dashboards</a></li><li><a href="#vagas">Reabertura de vagas</a></li>
 <li><a href="#dash">Dashboards</a></li><li><a href="#stack">Stack</a></li><li><a href="#repro">Reproduzir</a></li>
-<li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
+<li><a href="#alt">Alternativas</a></li><li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
 </ul></nav>
 <main>
 
@@ -175,6 +175,15 @@ svg{max-width:100%;height:auto}
 # Backup do código e da BD antes de cada passo.</code></pre>
 <p>O código desta edição está em <a href="https://github.com/ferreiraed-glitch/gec-feira-emprego-plataforma">github.com/ferreiraed-glitch/gec-feira-emprego-plataforma</a>, com dados, nomes, credenciais e logótipos retirados. Ver o <code>README.md</code> para a estrutura e os passos de instalação.</p>
 
+<h2 id="alt">Alternativas consideradas para o formulário</h2>
+<p>Em 2026 testaram-se o HeyForm e o LimeSurvey antes de se escolher o Formbricks. A camada de dados e os dashboards são independentes da ferramenta de formulários: trocar de ferramenta obriga a reescrever só o exportador e o R1.</p>
+<table>
+<tr><th>Ferramenta</th><th>A favor</th><th>Contra</th></tr>
+<tr><td>Formbricks (escolhido)</td><td>Lógica que lê qualquer resposta anterior; API de gestão que permite alterar o formulário publicado (base do R1); interface simples, boa em telemóvel.</td><td>Quotas e várias organizações só com licença Enterprise; sem opção «desactivada» numa escolha múltipla; respostas de escolha guardam o texto, não o identificador.</td></tr>
+<tr><td>LimeSurvey</td><td>Quotas nativas e gratuitas; Expression Manager muito poderoso; vários utilizadores e permissões; anonimização e tokens; respostas em tabelas SQL; maturidade.</td><td>Estrutura de inquéritos activos restrita e API pouco adequada a alterações em produção; as quotas bloqueiam no envio em vez de esconder a opção; backoffice pesado para formulários simples. Não reavaliado nas versões actuais.</td></tr>
+<tr><td>HeyForm</td><td>Muito simples de administrar.</td><td>A lógica condicional só testa a própria resposta do campo, o que impede o limite de 3 empresas em tempo real; não tem chaves API.</td></tr>
+</table>
+<p>Orientação: para uma plataforma partilhada por várias entidades e formulários mais estáveis, vale a pena avaliar o LimeSurvey. Para reutilizar o desenho da Feira (vagas que fecham e reabrem em tempo real), o Formbricks com o R1 é a base mais directa.</p>
 <h2 id="licoes">9. Lições para a plataforma da REDEmprega</h2>
 <ul>
 <li>A lógica condicional do Formbricks lê qualquer pergunta anterior; a de outras ferramentas testadas (HeyForm) só lê a própria. Foi isto que decidiu a escolha.</li>
