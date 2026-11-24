@@ -10,6 +10,10 @@ Solução usada na XI Feira de Emprego de Carnide (13 Out 2026) para receber can
 2. Os dashboards (`dashboard/`, Flask) escrevem nessa base: validar, anular, atribuir técnico, marcar horário, receção, seguimento, avaliação.
 3. `r1_capacidade.py` corre de minuto a minuto, lê a base e as respostas e altera o formulário publicado por API: retira a empresa esgotada e **repõe-na quando uma anulação liberta uma vaga**.
 
+## Evolução proposta
+
+Em 2026 as empresas e as vagas foram recolhidas pelos técnicos e carregadas à mão. O passo seguinte é um formulário de inscrição das empresas (ofertas, requisitos, nº de RH, disponibilidade, duração e limite de entrevistas) que gere o formulário de candidaturas, a agenda e os perfis dos dashboards. Ver [`docs/index.html`](docs/index.html#empresas).
+
 ## Alternativas ao Formbricks
 
 Testaram-se também o HeyForm (a lógica condicional não permite o limite de 3 empresas em tempo real) e o LimeSurvey (quotas nativas e gratuitas, mas pouco adequado a alterar o formulário em produção e com backoffice mais pesado). Só o exportador e o R1 dependem do Formbricks. Detalhe em [`docs/index.html`](docs/index.html#alt).

@@ -43,7 +43,7 @@ svg{max-width:100%;height:auto}
 <li><a href="#resumo">Resumo</a></li><li><a href="#links">Links</a></li><li><a href="#arq">Arquitectura</a></li>
 <li><a href="#ligacao">Formulário ↔ dashboards</a></li><li><a href="#vagas">Reabertura de vagas</a></li>
 <li><a href="#dash">Dashboards</a></li><li><a href="#stack">Stack</a></li><li><a href="#repro">Reproduzir</a></li>
-<li><a href="#alt">Alternativas</a></li><li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
+<li><a href="#empresas">Evolução proposta</a></li><li><a href="#alt">Alternativas</a></li><li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
 </ul></nav>
 <main>
 
@@ -59,7 +59,7 @@ svg{max-width:100%;height:auto}
 <tr><td>Página pública da Feira</td><td><a href="https://gec-carnide.pt/feira-emprego-2026/">gec-carnide.pt/feira-emprego-2026</a></td><td>Publicada</td></tr>
 <tr><td>Dashboards de demonstração (dados fictícios)</td><td><code>https://demo.exemplo.org/?t=&lt;token&gt;</code></td><td>Um link por perfil. O token é pessoal e fornece-se à parte; não consta deste documento.</td></tr>
 <tr><td>Dashboards de produção</td><td><code>https://dashboard.exemplo.org</code></td><td>Dados reais; acesso só com link pessoal. <strong>Não partilhar.</strong></td></tr>
-<tr><td>Formulário de inscrição das empresas</td><td colspan="2"><strong>A confirmar:</strong> em 2026 as empresas e as ofertas foram carregadas pela coordenação a partir do catálogo de ofertas (<code>empresas-config.json</code> e o formulário construído por API), não por um formulário próprio. Se existir um formulário de recolha junto das empresas, o endereço tem de ser acrescentado aqui.</td></tr>
+<tr><td>Formulário de inscrição das empresas</td><td colspan="2">Não existiu em 2026: os técnicos recolheram os dados das empresas e das vagas, publicados no catálogo, e a coordenação carregou-os à mão. Ver a secção <a href="#empresas">Evolução proposta</a>.</td></tr>
 </table>
 <p>Cada link de dashboard leva <code>?t=&lt;token&gt;</code>. No primeiro acesso o token passa para um cookie e sai do endereço; na base de dados fica só o sha256.</p>
 
@@ -175,6 +175,19 @@ svg{max-width:100%;height:auto}
 # Backup do código e da BD antes de cada passo.</code></pre>
 <p>O código desta edição está em <a href="https://github.com/ferreiraed-glitch/gec-feira-emprego-plataforma">github.com/ferreiraed-glitch/gec-feira-emprego-plataforma</a>, com dados, nomes, credenciais e logótipos retirados. Ver o <code>README.md</code> para a estrutura e os passos de instalação.</p>
 
+<h2 id="empresas">Evolução proposta: inscrição das empresas por formulário</h2>
+<p>Em 2026 a recolha de empresas e vagas estava adiantada quando a plataforma foi desenhada, e foi feita pelos técnicos. Numa próxima edição, o passo que mais simplificaria a plataforma é um <strong>formulário de inscrição das empresas</strong>, cuja resposta alimente automaticamente o resto.</p>
+<table>
+<tr><th>A empresa indica</th><th>Passa a alimentar</th></tr>
+<tr><td>Nome, contactos, logótipo, pessoa de contacto</td><td>Ecrã mestre do formulário de candidaturas; perfil e link da empresa no dashboard</td></tr>
+<tr><td>Ofertas: título, descrição, requisitos, tipo de contrato, local, horário</td><td>Bloco de ofertas da empresa e catálogo (hoje um PDF com páginas indicadas à mão)</td></tr>
+<tr><td>Número de RH presentes na Feira</td><td><code>n_entrevistadores</code> da agenda</td></tr>
+<tr><td>Período de disponibilidade dos RH</td><td><code>hora_inicio</code> e <code>hora_fim</code> (e horários de tolerância)</td></tr>
+<tr><td>Duração média de cada entrevista</td><td><code>duracao_entrevista_min</code></td></tr>
+<tr><td>Limite de entrevistas no período</td><td><code>capacidade_maxima</code>, hoje calculada à mão (entrevistas possíveis + 30% para faltas)</td></tr>
+<tr><td>Técnico responsável pela empresa</td><td><code>tecnicos</code> da configuração, para a atribuição automática</td></tr>
+</table>
+<p>O que hoje é <code>empresas-config.json</code> e <code>formbricks-empresas-mapping.json</code>, escritos à mão, passaria a ser gerado a partir das respostas: um script semelhante ao exportador constrói o formulário de candidaturas por API (um bloco por empresa), cria a configuração e os links das empresas, e calcula a capacidade a partir de RH, duração e período. Validar as respostas antes de publicar (coordenação) e fechar a inscrição de empresas antes de abrir a de candidatos evita alterar o formulário com respostas já recebidas.</p>
 <h2 id="alt">Alternativas consideradas para o formulário</h2>
 <p>Em 2026 testaram-se o HeyForm e o LimeSurvey antes de se escolher o Formbricks. A camada de dados e os dashboards são independentes da ferramenta de formulários: trocar de ferramenta obriga a reescrever só o exportador e o R1.</p>
 <table>
