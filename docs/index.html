@@ -43,7 +43,7 @@ svg{max-width:100%;height:auto}
 <li><a href="#resumo">Resumo</a></li><li><a href="#links">Links</a></li><li><a href="#arq">Arquitectura</a></li>
 <li><a href="#ligacao">Formulário ↔ dashboards</a></li><li><a href="#vagas">Reabertura de vagas</a></li>
 <li><a href="#dash">Dashboards</a></li><li><a href="#stack">Stack</a></li><li><a href="#repro">Reproduzir</a></li>
-<li><a href="#empresas">Evolução proposta</a></li><li><a href="#alt">Alternativas</a></li><li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
+<li><a href="#empresas">Evolução proposta</a></li><li><a href="#alt">Alternativas</a></li><li><a href="#licoes">Lições</a></li><li><a href="#seg">Segurança</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
 </ul></nav>
 <main>
 
@@ -188,6 +188,32 @@ svg{max-width:100%;height:auto}
 <tr><td>Técnico responsável pela empresa</td><td><code>tecnicos</code> da configuração, para a atribuição automática</td></tr>
 </table>
 <p>O que hoje é <code>empresas-config.json</code> e <code>formbricks-empresas-mapping.json</code>, escritos à mão, passaria a ser gerado a partir das respostas: um script semelhante ao exportador constrói o formulário de candidaturas por API (um bloco por empresa), cria a configuração e os links das empresas, e calcula a capacidade a partir de RH, duração e período. Validar as respostas antes de publicar (coordenação) e fechar a inscrição de empresas antes de abrir a de candidatos evita alterar o formulário com respostas já recebidas.</p>
+<h3>Formulário de demonstração</h3>
+<p>Para testar o desenho: <a href="https://form-gec.cloudkeep.pt/s/cmwul92dx000001owwm5qm8dc">formulário DEMO de inscrição de empresas</a>. Não use dados reais. Foi criado por <code>criar_formulario_empresas_demo.py</code>, que mostra como gerar um formulário por API. Não está ligado ao resto da plataforma.</p>
+<h3>Questões a acrescentar</h3>
+<ul>
+<li><strong>Por oferta:</strong> número de vagas, local, regime e horário, remuneração ou «a combinar», tipo de contrato, data de início, aceita pessoas sem experiência.</li>
+<li><strong>Requisitos estruturados</strong> (habilitações, línguas, carta de condução, turnos, experiência), separando <em>eliminatórios</em> de <em>desejáveis</em>. O dashboard poderia avisar o técnico quando um candidato não cumpre um requisito eliminatório.</li>
+<li><strong>Inclusão e acessibilidade:</strong> oferta aberta a pessoas com deficiência ou incapacidade, com ou sem adaptações; local acessível.</li>
+<li><strong>Documentos pedidos ao candidato:</strong> carta de apresentação, certificados, portefólio, como campos opcionais da candidatura.</li>
+<li><strong>Perguntas de triagem da empresa</strong> (2 a 3 por oferta), acrescentadas ao bloco da empresa.</li>
+<li><strong>Agenda:</strong> pausas e horários sem entrevistas, entrevistas em simultâneo ou por ordem, se aceita horários de tolerância.</li>
+<li><strong>Logística:</strong> mesa, ligação, tomadas, cartaz; acesso para pessoas com mobilidade reduzida.</li>
+<li><strong>Contactos:</strong> RH presentes na Feira e pessoa para o seguimento depois do evento.</li>
+<li><strong>Autorizações:</strong> publicação do nome, logótipo e ofertas; compromisso de tratamento e eliminação dos dados dos candidatos; compromisso de avisar com antecedência se desistir (em 2026 a desistência de uma empresa obrigou a anular dezenas de candidaturas).</li>
+</ul>
+<h3>Funcionalidades à volta do formulário</h3>
+<ul>
+<li><strong>Validação pela coordenação</strong> antes de gerar o formulário de candidaturas, com pedido de correcções.</li>
+<li><strong>Pré-visualização para a empresa</strong> do bloco de ofertas e do cálculo da capacidade.</li>
+<li><strong>Capacidade calculada, não digitada:</strong> RH × período ÷ duração, mais a margem para faltas, com a justificação visível.</li>
+<li><strong>Alteração com histórico:</strong> pedidos de mais ou menos vagas depois de abertas as candidaturas, com registo de quem aprovou (em 2026 foi feito editando um ficheiro).</li>
+<li><strong>Catálogo e placas geradas</strong> a partir das respostas, em vez de um documento montado à mão.</li>
+<li><strong>Link pessoal da empresa</strong> criado no fim da inscrição, para ver o estado e actualizar contactos.</li>
+<li><strong>Prazos e lembretes</strong> automáticos às empresas que ainda não preencheram.</li>
+<li><strong>Reutilização entre edições:</strong> importar a inscrição do ano anterior e corrigir só o que mudou.</li>
+</ul>
+<p><strong>Ordem sugerida:</strong> 1) requisitos estruturados, vagas por oferta e preferências de agenda; 2) validação e capacidade calculada; 3) alterações com histórico e catálogo gerado.</p>
 <h2 id="alt">Alternativas consideradas para o formulário</h2>
 <p>Em 2026 testaram-se o HeyForm e o LimeSurvey antes de se escolher o Formbricks. A camada de dados e os dashboards são independentes da ferramenta de formulários: trocar de ferramenta obriga a reescrever só o exportador e o R1.</p>
 <table>
@@ -209,6 +235,17 @@ svg{max-width:100%;height:auto}
 </ul>
 
 <h2 id="licenca">Licença</h2><p>Código: <a href="https://eupl.eu/1.2/pt">EUPL-1.2</a>. Documentação: CC BY-SA 4.0. Marcas e logótipos (GEC, REDEmprega, Lisboa, empresas) não estão incluídos nem licenciados. Copyright © 2026 Eduardo Ferreira. Desenvolvido para o GEC – Grupo de Empregabilidade de Carnide e cedido sem contrapartida, para adaptação por outras organizações.</p>
+<h2 id="seg">Segurança: lista de verificação para quem reproduzir</h2>
+<ul>
+<li><strong>Tokens e sessões:</strong> gerar com <code>secrets.token_urlsafe</code>, guardar só o hash, cookie HttpOnly/Secure/SameSite, validade curta, revogação, CSRF em todos os POST.</li>
+<li><strong>Entrada externa:</strong> tratar como não fiável tudo o que vem do formulário público (nomes, ficheiros, endereços de ficheiros). Nunca construir caminhos nem pedidos a partir dele sem validar; o dashboard deve falar só com o armazenamento previsto.</li>
+<li><strong>Chave API:</strong> uma de leitura para o que fica exposto e outra de gestão só para o R1; rodar depois do evento.</li>
+<li><strong>Exposição:</strong> publicar só o necessário. Desactivar o registo de novas contas no Formbricks, restringir o painel de administração (Cloudflare Access ou VPN), não expor a consola do MinIO, fechar o formulário quando acabam as inscrições.</li>
+<li><strong>Limitação de pedidos</strong> e regras de WAF no túnel contra tentativas repetidas e envios em massa; HSTS e cabeçalhos de segurança também no dashboard.</li>
+<li><strong>Ficheiros enviados:</strong> verificar o conteúdo (não só a extensão), servir sempre com tipo fixo e <code>nosniff</code>, e não os abrir em máquinas administrativas sem cuidado.</li>
+<li><strong>Dados:</strong> BD fora da pasta pública, backups cifrados, eliminação no prazo, dados fictícios nas demonstrações.</li>
+<li><strong>Repositório:</strong> sem segredos, BD, backups nem mapeamentos reais; rever o histórico antes de tornar público.</li>
+</ul>
 <h2 id="limites">10. Limites e cuidados</h2>
 <div class="aviso"><strong>Dados pessoais.</strong> A solução trata NIF, documentos, CVs e contactos. O repositório e este documento não contêm dados reais, tokens nem credenciais. Qualquer cópia do código para partilha deve sair de uma versão limpa (sem BD, backups, aliases de e-mail, nomes de técnicos nem mapeamentos reais).</div>
 <ul>

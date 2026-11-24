@@ -162,8 +162,9 @@ def autenticar():
     if novo:
         # Tira o token do endereço (histórico, partilhas, cabeçalho Referer).
         registar("entrar")
-        destino = request.path
-        resp = redirect(destino if destino.startswith("/") else "/")
+        # "//outro.site" seria um redireccionamento para fora: fica sempre um só "/".
+        destino = "/" + request.path.lstrip("/")
+        resp = redirect(destino)
         resp.set_cookie(COOKIE, novo, httponly=True, secure=cookie_seguro(), samesite="Lax",
                         expires=datetime.fromisoformat(row["expira_em"]))
         return resp

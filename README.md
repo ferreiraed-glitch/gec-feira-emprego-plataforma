@@ -12,7 +12,7 @@ Solução usada na XI Feira de Emprego de Carnide (13 Out 2026) para receber can
 
 ## Evolução proposta
 
-Em 2026 as empresas e as vagas foram recolhidas pelos técnicos e carregadas à mão. O passo seguinte é um formulário de inscrição das empresas (ofertas, requisitos, nº de RH, disponibilidade, duração e limite de entrevistas) que gere o formulário de candidaturas, a agenda e os perfis dos dashboards. Ver [`docs/index.html`](docs/index.html#empresas).
+Em 2026 as empresas e as vagas foram recolhidas pelos técnicos e carregadas à mão. O passo seguinte é um formulário de inscrição das empresas (ofertas, requisitos, nº de RH, disponibilidade, duração e limite de entrevistas) que gere o formulário de candidaturas, a agenda e os perfis dos dashboards. Ver [`docs/index.html`](docs/index.html#empresas). Formulário de demonstração (sem dados reais): https://form-gec.cloudkeep.pt/s/cmwul92dx000001owwm5qm8dc
 
 ## Alternativas ao Formbricks
 

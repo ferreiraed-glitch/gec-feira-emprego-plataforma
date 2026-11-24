@@ -26,6 +26,11 @@ def descarregar(cv_url, base_url, api_key, timeout=30):
     parsed = urllib.parse.urlsplit(cv_url or "")
     if not parsed.path.startswith("/storage/"):
         raise CVIndisponivel("sem CV associado")
+    # O cv_url vem de uma resposta do formulário público: não pode sair de /storage/
+    # (com «..», codificado ou não) para outras rotas do Formbricks, onde seguiria a chave API.
+    segmentos = [urllib.parse.unquote(urllib.parse.unquote(s)) for s in parsed.path.split("/")]
+    if any(s in (".", "..") or "/" in s or "\\" in s for s in segmentos):
+        raise CVIndisponivel("endereço do CV inválido")
     req = urllib.request.Request(base_url.rstrip("/") + parsed.path)
     req.add_header("x-api-key", api_key)
     req.add_header("User-Agent", "gec-fe2026-dashboard")
