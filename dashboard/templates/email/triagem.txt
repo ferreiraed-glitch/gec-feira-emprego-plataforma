@@ -1,0 +1,15 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+Obrigado pela colaboração na XI Feira de Emprego de Carnide.
+
+Partilhamos uma nota sobre o calendário: as inscrições de candidatos encerram amanhã, {{ fecho }}. Até lá ainda podem entrar algumas candidaturas novas.
+
+Neste momento tem {{ n }} candidatura{{ 's' if n != 1 }}{% if empresa %} para {{ empresa }}{% endif %} a aguardar triagem no seu dashboard. A validação e a escolha do horário de entrevista feitas com alguma antecedência dão tempo aos candidatos para se prepararem e aos técnicos que os acompanham para os informar. Os candidatos são avisados por e-mail às 18:00.
+
+O seu link pessoal para o dashboard de triagem:
+{{ link }}
+
+O link é pessoal: por favor, não o reencaminhe. Se precisar de alguma ajuda, ou se quiser combinar connosco outra forma de fazer a triagem, basta responder a este e-mail.
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "impressao.html" %}
+{% block titulo %}Receção · relatório do dia{% endblock %}
+{% block voltar %}<a href="{{ url_for('rececao') }}">← Receção</a>{% endblock %}
+{# Relatório do dia (14 Out 2026): três secções, com gráficos no topo. O <thead> leva o banner
+   e repete-se em cada página; o crédito vem do impressao.html. #}
+{% block conteudo %}
+{% set a = analise %}
+<table class="folha relatorio">
+  <thead>
+    <tr><th colspan="5" class="cab-folha">
+      <img src="{{ url_for('static', filename='banner.jpg') }}" alt="XI Feira de Emprego · Carnide 2026 · 13 de Outubro · Lispolis">
+      <div><span class="cab-tipo">Receção de candidatos</span><span class="cab-empresa">Relatório do dia</span>
+        <span class="cab-info">13 de Outubro · gerado a {{ gerada.strftime('%d/%m/%Y às %H:%M') }}{% if not fecho %} · o dia ainda não foi fechado: quem não está «Presente» consta como não compareceu{% endif %}</span></div>
+    </th></tr>
+  </thead>
+  <tfoot>
+    <tr><td colspan="5" class="rodape-folha">XI Feira de Emprego · Carnide 2026 · 13 de Outubro · Lispolis · Relatório da receção</td></tr>
+  </tfoot>
+  <tbody>
+    <tr class="sem-borda"><td colspan="5">{% include "_rececao_graficos.html" %}</td></tr>
+
+    <tr class="sec-rel"><th colspan="5">1. Candidatos presentes <small>({{ a.n_presentes }}) · inscritos que compareceram: entrevistas marcadas, feitas e acrescentadas no dia («Extra»)</small></th></tr>
+    <tr class="cols-rel"><th class="c-n">N.º</th><th>Nome do candidato/a</th><th class="c-tel">Telefone</th><th>Entrevistas marcadas</th><th>Entrevistas feitas</th></tr>
+  {% for p in a.presentes %}
+    {% set marcadas = p.cands|rejectattr('extra')|list %}
+    {% set extras = p.cands|selectattr('extra')|list %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td><b>{{ p.nome }}</b></td>
+      <td class="num">{{ p.telefone }}</td>
+      <td>{% for c in marcadas %}<div>{{ c.empresa }} <span class="hora-ent{{ ' espera' if c.hora.startswith('Espera') }}{{ ' pv' if c.por_validar }}">{{ c.hora }}</span></div>{% else %}—{% endfor %}</td>
+      <td>{% for c in marcadas + extras %}
+        <div class="{{ 'ok-rel' if c.entrevistado else 'ko-rel' }}">{{ '✓' if c.entrevistado else '✗' }} {{ c.empresa_dia }}{% if c.horario_dia %} <span class="hora-ent">{{ c.horario_dia }}</span>{% endif %}{% if c.empresa_dia != c.empresa and not c.extra %} <span class="suave">(marcada: {{ c.empresa }})</span>{% endif %}{% if c.extra %} <span class="flag-rel">Extra</span>{% endif %}{% if not c.entrevistado %} <span class="suave">não feita</span>{% endif %}</div>
+      {% else %}—{% endfor %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="vazio-rel">Ainda não há candidatos presentes.</td></tr>
+  {% endfor %}
+
+    <tr class="sec-rel"><th colspan="5">2. Inscritos no dia <small>({{ a.n_avulsos }}) · chegaram sem inscrição prévia e foram registados na receção</small></th></tr>
+    <tr class="cols-rel"><th class="c-n">N.º</th><th>Nome do candidato/a</th><th class="c-tel">Telefone</th><th colspan="2">Entrevistas feitas</th></tr>
+  {% for p in a.avulsos %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td><b>{{ p.nome }}</b></td>
+      <td class="num">{{ p.telefone }}</td>
+      <td colspan="2">{% for c in p.cands %}
+        <div class="{{ 'ok-rel' if c.entrevistado else 'ko-rel' }}">{{ '✓' if c.entrevistado else '✗' }} {{ c.empresa_dia }}{% if c.horario_dia %} <span class="hora-ent">{{ c.horario_dia }}</span>{% endif %}{% if not c.entrevistado %} <span class="suave">não feita</span>{% endif %}</div>
+      {% else %}—{% endfor %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="vazio-rel">Nenhum candidato foi registado sem inscrição.</td></tr>
+  {% endfor %}
+
+    <tr class="sec-rel"><th colspan="5">3. Candidatos que não compareceram <small>({{ a.n_ausentes }}) · inscritos validados sem presença registada, com as entrevistas que tinham marcadas</small></th></tr>
+    <tr class="cols-rel"><th class="c-n">N.º</th><th>Nome do candidato/a</th><th class="c-tel">Telefone</th><th colspan="2">Entrevistas marcadas</th></tr>
+  {% for p in a.ausentes %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td><b>{{ p.nome }}</b></td>
+      <td class="num">{{ p.telefone }}</td>
+      <td colspan="2">{% for c in p.cands %}<div>{{ c.empresa }} <span class="hora-ent{{ ' espera' if c.hora.startswith('Espera') }}{{ ' pv' if c.por_validar }}">{{ c.hora }}</span></div>{% else %}—{% endfor %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5" class="vazio-rel">Todos os inscritos compareceram.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

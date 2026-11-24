@@ -1,0 +1,35 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+{% if lembrete %}Ainda não recebemos a sua avaliação da XI Feira de Emprego de Carnide e a sua opinião faz-nos falta.
+
+A avaliação é a base da nossa melhoria contínua: é a partir dela que identificamos o que correu bem e deve manter-se, e o que precisa de mudar nas próximas edições. Os técnicos que acompanharam os candidatos e as empresas são quem melhor vê o que funcionou e o que falhou.
+
+Esta edição trouxe também novidades: a plataforma de gestão (dashboard), com as inscrições, a triagem, o ponto de situação das candidaturas e a consulta dos candidatos pelas empresas. Precisamos de avaliar o seu impacto, para saber o que deve continuar e o que deve ser melhorado.
+
+O questionário de avaliação está no seu perfil do dashboard, no botão «Avaliação», no topo da página. Responde-se em poucos minutos, com uma escala de 1 (Muito mau) a 5 (Muito bom) e algumas perguntas abertas. As notas 1 e 2 podem ser explicadas, se quiser.{% else %}Obrigado pela colaboração na XI Feira de Emprego de Carnide.
+
+Para prepararmos as próximas edições, gostaríamos de conhecer a sua opinião sobre a organização da Feira. O questionário de avaliação já está disponível no seu perfil do dashboard, no botão «Avaliação», no topo da página. São oito aspetos, numa escala de 1 (Muito mau) a 5 (Muito bom), e três perguntas abertas: o que correu bem, o que poderá correr melhor e um espaço para comentários. Leva cerca de cinco minutos.{% endif %}
+{% if p.triagem and p.entidade %}
+
+Como tem dois acessos, basta responder uma vez: a resposta é a mesma nos dois.
+{% endif %}
+
+Para facilitar, reenviamos {{ 'os seus links pessoais' if p.triagem and p.entidade else 'o seu link pessoal' }}:
+{% if p.triagem %}
+
+Dashboard de triagem (válido até {{ ate_triagem }}):
+{{ p.triagem }}
+{% endif %}
+{% if p.entidade %}
+
+Candidatos que inscreveu e acompanhamento (válido até {{ validade }}):
+{{ p.entidade }}
+{% elif p.tem_entidade %}
+
+O link dos candidatos que inscreveu foi-lhe enviado antes num e-mail com o assunto «XI Feira de Emprego · o seu acesso ao estado dos candidatos que inscreveu».
+{% endif %}
+
+{{ 'Os links são pessoais' if p.triagem and p.entidade else 'O link é pessoal' }}: por favor, não {{ 'os' if p.triagem and p.entidade else 'o' }} reencaminhe. Se tiver alguma dificuldade, basta responder a este e-mail.
+{% endblock %}

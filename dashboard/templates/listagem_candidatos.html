@@ -1,0 +1,35 @@
+{% extends "impressao.html" %}
+{% block titulo %}Receção · por candidato{% endblock %}
+{# Folha de presenças por ordem alfabética, como Doc ofertas/Modelo.lista.Rececao.xlsx (6 Out 2026). #}
+{% block conteudo %}
+{% if pessoas %}
+<table class="folha rececao">
+  <thead>
+    <tr><th colspan="{{ 2 + n_col * 2 + 1 }}" class="cab-folha">
+      <img src="{{ url_for('static', filename='banner.jpg') }}" alt="XI Feira de Emprego · Carnide 2026 · 13 de Outubro · Lispolis">
+      <div><span class="cab-tipo">Receção de candidatos</span><span class="cab-empresa">Por ordem alfabética</span>
+        <span class="cab-info">13 de Outubro · {{ pessoas|length }} candidato{{ 's' if pessoas|length != 1 }} · hora da entrevista em cada empresa; «Espera» = lista de espera; «Por validar» = ainda não validado, pode aparecer na Feira</span></div>
+    </th></tr>
+    <tr>
+      <th class="c-n">N.º</th><th>Nome do candidato/a</th>
+      {% for i in range(n_col) %}<th>Empresa {{ 'ABCDEFGH'[i] }}</th><th class="c-senha">Senha</th>{% endfor %}
+      <th class="c-presenca">Presente</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in pessoas %}
+    <tr>
+      <td class="num">{{ loop.index }}</td>
+      <td><b>{{ p.nome }}</b><br><span class="suave num">{{ p.telefone }}</span></td>
+      {% for i in range(n_col) %}{% set x = p.empresas[i] if i < p.empresas|length else none %}
+      <td>{% if x %}{{ x.empresa }}<br><span class="hora-ent{{ ' espera' if x.hora.startswith('Espera') }}{{ ' pv' if x.hora == 'Por validar' }}">{{ x.hora }}</span>{% endif %}</td><td></td>
+      {% endfor %}
+      <td class="c-presenca"><span class="quadrado"></span></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vazio">Ainda não há candidaturas validadas.</p>
+{% endif %}
+{% endblock %}

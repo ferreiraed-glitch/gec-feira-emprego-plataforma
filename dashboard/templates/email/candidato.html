@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{# E-mail a cada candidato (8 Out 2026): resultado das candidaturas validadas ou anuladas, hora das
+   entrevistas e dicas para a entrevista. Só sai quando muda alguma coisa (ver correio.py). #}
+{% set cores = {
+  "marcado": "background:#E3F2E8;color:#1D5C33;border:1px solid #B7DBC3;",
+  "espera": "background:#E1EEF6;color:#0B4A70;border:1px solid #B5D2E4;",
+  "anulado": "background:#EEF1F3;color:#4A6172;border:1px solid #C4D6DE;",
+} %}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+{% if p.entrevistas %}
+<p style="margin:0 0 12px;">Boas notícias: a sua candidatura foi validada e tem <b>entrevista{{ 's' if p.entrevistas|length > 1 }} de emprego marcada{{ 's' if p.entrevistas|length > 1 }}</b> na XI Feira de Emprego de Carnide, na <b>terça-feira, 13 de Outubro</b>, na Lispolis – Pólo Tecnológico de Lisboa, em Carnide.</p>
+<p style="margin:0 0 12px;">Uma entrevista é a oportunidade de mostrar quem é e o que sabe fazer. Vale a pena preparar-se: alguns minutos de preparação fazem diferença na impressão que deixa.</p>
+{% elif p.espera %}
+<p style="margin:0 0 12px;">A sua candidatura à XI Feira de Emprego de Carnide (13 de Outubro, na Lispolis) foi validada e está em <b>lista de espera</b> para entrevista.</p>
+{% else %}
+<p style="margin:0 0 12px;">Obrigado pelo seu interesse na XI Feira de Emprego de Carnide. Informamos sobre o resultado da sua candidatura.</p>
+{% endif %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:14px;margin:8px 0 16px;">
+  <tr>
+    <th align="left" style="padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;">Empresa</th>
+    <th align="left" style="padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;">Situação</th>
+  </tr>
+  {% for i in p.itens %}
+  <tr>
+    <td style="padding:8px;border-bottom:1px solid #C4D6DE;vertical-align:top;"><b>{{ i.empresa }}</b>{% if i.ofertas %}<br><span style="font-size:13px;color:#4A6172;">{{ i.ofertas }}</span>{% endif %}</td>
+    <td style="padding:8px;border-bottom:1px solid #C4D6DE;vertical-align:top;">
+      {% if i.classe == 'marcado' %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.marcado }}">Entrevista</span><br><b style="font-size:15px;">13 Out, às {{ i.hora }}</b> <span style="font-size:13px;color:#4A6172;">(até às {{ i.fim }})</span>
+      {% elif i.classe == 'espera' %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.espera }}">Lista de espera</span>
+      {% else %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.anulado }}">Não seguiu para entrevista</span>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if p.espera %}
+<p style="margin:0 0 12px;font-size:14px;">Lista de espera quer dizer que, se abrir um horário (por exemplo, por alguém não poder comparecer), é contactado/a pelo/a técnico/a que fez a sua inscrição.</p>
+{% endif %}
+{% if p.anuladas %}
+<p style="margin:0 0 12px;font-size:14px;">{% if p.anuladas|length == p.itens|length %}Desta vez a sua candidatura não seguiu para entrevista.{% else %}A candidatura a {{ p.anuladas|map(attribute='empresa')|join(', ') }} não seguiu para entrevista.{% endif %} Isso não diz nada sobre o seu valor: depende dos requisitos de cada oferta e do número de lugares. Fale com o/a técnico/a que o/a acompanha sobre outras oportunidades.</p>
+{% endif %}
+
+{% if p.entrevistas %}
+<h2 style="font-size:16px;margin:20px 0 8px;color:#0E2A3B;">No dia da entrevista</h2>
+<ul style="margin:0 0 12px;padding-left:20px;font-size:14px;">
+  <li style="margin-bottom:4px;"><b>Chegue 15 minutos antes</b> da hora marcada, para se registar na receção com calma.</li>
+  <li style="margin-bottom:4px;">Leve o <b>documento de identificação</b> e <b>algumas cópias do seu CV</b>.</li>
+  <li style="margin-bottom:4px;">Prepare-se: leia a oferta e saiba o que a empresa faz. Pense em dois ou três exemplos concretos do que já fez e que mostrem que é a pessoa certa.</li>
+  <li style="margin-bottom:4px;">Vista-se de forma cuidada e adequada à função.</li>
+  <li style="margin-bottom:4px;">Ao entrar, cumprimente, olhe nos olhos e sorria. Ouça a pergunta até ao fim e responda com calma e de forma clara.</li>
+  <li style="margin-bottom:4px;">Silencie o telemóvel. Tenha uma ou duas perguntas para fazer no fim (por exemplo, sobre o horário ou a integração na equipa).</li>
+  <li style="margin-bottom:4px;">Seja simpático/a com todas as pessoas que encontrar: a impressão começa antes da entrevista.</li>
+</ul>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ artigo }}" style="display:inline-block;padding:10px 22px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:14px;">Ler o artigo «Entrevistas – Comunicação e Impacto»</a>
+  </td>
+</tr></table>
+<p style="margin:0 0 12px;font-size:14px;">A Feira decorre só de manhã e o acesso é reservado a candidatos inscritos: por favor, venha sem acompanhantes.</p>
+{% endif %}
+
+<p style="margin:0;font-size:14px;">Se tiver dúvidas ou não puder comparecer, avise o/a técnico/a que fez a sua inscrição{% if p.tecnico %} ({{ p.tecnico }}{% if p.entidade %}, {{ p.entidade }}{% endif %}){% endif %} ou responda a este e-mail.{% if p.entrevistas %} Desejamos-lhe boa sorte!{% endif %}</p>
+{% endblock %}
+{% block nota_rodape %}Mensagem enviada pela coordenação da XI Feira de Emprego de Carnide a candidatos inscritos.{% endblock %}

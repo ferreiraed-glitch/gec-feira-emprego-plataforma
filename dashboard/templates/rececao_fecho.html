@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block titulo %}Receção · fecho do dia{% endblock %}
+{# Fecho do dia (13 Out 2026). Antes: o que vai acontecer, com o e-mail de cada técnico
+   para ver antes de confirmar. Depois: o estado do envio. #}
+{% block conteudo %}
+<p class="migalhas"><a href="{{ url_for('rececao') }}">← Receção · check-in</a></p>
+<div class="cabeca">
+  <h1>Fecho do dia</h1>
+  {% if fecho %}
+  <p class="suave">Feito a {{ para_local(fecho.em, '%d/%m/%Y às %H:%M') }} por {{ fecho.por }}: {{ fecho.faltas }} {{ 'candidato marcado' if fecho.faltas == 1 else 'candidatos marcados' }} «Não compareceu» e {{ fecho.emails }} e-mails preparados para os técnicos das entidades.</p>
+  {% else %}
+  <p class="suave">Para usar no fim da Feira. Os candidatos que não estão marcados como «Presente» passam a «Não compareceu», e cada técnico de entidade recebe um e-mail com o ponto de situação final dos candidatos que inscreveu: quem não compareceu (com os contactos, para os poder contactar) e, dos que compareceram, as entrevistas feitas, incluindo as acrescentadas no dia e as que ficaram por fazer. O e-mail explica também a fase de acompanhamento que se segue e a área «Acompanhamento» do dashboard deles. Só se faz uma vez.</p>
+  {% endif %}
+</div>
+{% if ok %}<p class="ok">Dia fechado. Os e-mails começam a sair nos próximos minutos; esta página mostra o progresso.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+{% if fecho %}
+<ul class="resumo">
+  <li class="marcado"><b>{{ envio.enviados }}</b> / {{ envio.n }} enviados</li>
+  <li class="pendente"><b>{{ envio.por_enviar }}</b> por enviar</li>
+  {% if envio.falhados %}<li class="anulado"><b>{{ envio.falhados }}</b> com erro</li>{% endif %}
+</ul>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Entidade</th><th>Técnico/a</th><th>E-mail</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+  {% for e in envios %}
+  <tr><td>{{ e.entidade }}</td><td>{{ e.nome }}</td><td>{{ e.email }}</td>
+    <td>{% if e.enviado_em %}<span class="estado marcado">Enviado {{ para_local(e.enviado_em) }}</span>
+        {% elif e.tentativas >= tentativas %}<span class="estado anulado" title="{{ e.resultado }}">Não enviado: {{ (e.resultado or '')[:80] }}</span>
+        {% elif e.tentativas %}<span class="estado pendente" title="{{ e.resultado }}">Nova tentativa em breve</span>
+        {% else %}<span class="estado pendente">Por enviar</span>{% endif %}</td>
+    <td><a href="{{ url_for('rececao_fecho_email', ref=e.ref) }}" target="_blank" rel="noopener">Ver e-mail</a></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="ajuda">Um candidato marcado como «Presente» depois do fecho deixa de aparecer como «Não compareceu» na receção; o e-mail já enviado não muda.</p>
+{% else %}
+<ul class="resumo">
+  <li class="anulado"><b>{{ faltas|length }}</b> / {{ resumo.pessoas }} passam a «Não compareceu»</li>
+  <li class="marcado"><b>{{ resumo.presentes }}</b> presentes</li>
+  <li class="espera"><b>{{ grupos|selectattr('email_ok')|list|length }}</b> e-mails a técnicos</li>
+</ul>
+
+<h2>E-mails que vão sair</h2>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Entidade</th><th>Técnico/a</th><th>E-mail</th><th class="dir">Compareceram</th><th class="dir">Entrevistas feitas</th><th class="dir">Extra</th><th class="dir">Por fazer</th><th class="dir">Não compareceram</th><th></th></tr></thead>
+  <tbody>
+  {% for gr in grupos %}
+  <tr><td>{{ gr.entidade }}</td><td>{{ gr.tecnico }}</td>
+    <td>{% if gr.email_ok %}{{ gr.email }}{% else %}<span class="nota-baixa">Sem e-mail válido: não recebe</span>{% endif %}</td>
+    <td class="dir num">{{ gr.resumo.presentes }}</td><td class="dir num">{{ gr.resumo.feitas }}</td>
+    <td class="dir num">{{ gr.resumo.extra or '' }}</td><td class="dir num">{{ gr.resumo.nao_feitas or '' }}</td>
+    <td class="dir num">{{ gr.resumo.faltaram }}</td>
+    <td><a href="{{ url_for('rececao_fecho_email', ref=gr.ref) }}" target="_blank" rel="noopener">Ver e-mail</a></td></tr>
+  {% else %}
+  <tr><td colspan="9" class="vazio">Não há candidatos de técnicos de entidades na lista.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if faltas %}
+<details class="caixa">
+  <summary><b>Os {{ faltas|length }} candidatos que passam a «Não compareceu»</b></summary>
+  <p class="ajuda">Se algum esteve na Feira, volte à receção e marque-o como «Presente» antes de fechar.</p>
+  <ul class="lista-faltas">{% for p in faltas %}<li>{{ p.nome }} <span class="suave">· {{ p.cands|map(attribute='empresa')|join(', ') }}</span></li>{% endfor %}</ul>
+</details>
+{% endif %}
+
+<form method="post" class="caixa destaque fecho-confirmar">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label class="toque"><input type="checkbox" name="confirmo" value="1" required> A Feira terminou e a lista de presenças está completa</label>
+  <button type="submit" class="principal">Fechar o dia e enviar os e-mails</button>
+  <p class="ajuda">Os e-mails não se podem anular depois de enviados. Abra um ou dois em «Ver e-mail» antes de confirmar.</p>
+</form>
+{% endif %}
+{% endblock %}

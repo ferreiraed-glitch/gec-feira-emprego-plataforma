@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block titulo %}Avaliação da organização{% endblock %}
+{# Resultados da avaliação da organização pelos parceiros (19 Out 2026), só coordenação. #}
+{% block conteudo %}
+<div class="cabeca">
+  <h1>Avaliação da organização pelos técnicos e coordenação</h1>
+  <ul class="resumo">
+    <li class="marcado"><b>{{ respostas|length }}</b> respostas</li>
+    {% for gr in por_grupo %}<li class="espera"><b>{{ gr.respostas|length }}</b> {{ gr.nome|lower }}</li>{% endfor %}
+  </ul>
+  <p class="suave">Questionário respondido pelos técnicos de encaminhamento (link da entidade), pelos técnicos de triagem e pela coordenação, no menu «Avaliação» de cada um. Uma resposta por pessoa, mesmo com dois links; quem coordenou e também triou conta na coordenação. Escala: {% for v, nome in escala %}{{ v }} {{ nome }}{{ ' · ' if not loop.last }}{% endfor %}. As médias não contam as respostas N/A. Nas notas 1 e 2 o questionário convida a explicar porquê, sem obrigar.</p>
+</div>
+<p class="accoes">
+  <a class="botao-sec" href="{{ url_for('avaliacao_feira_csv') }}">Descarregar CSV (todas as respostas)</a>
+  <a class="botao-principal" href="{{ url_for('avaliacao_feira') }}">{{ 'Ver / corrigir a minha avaliação' if ja_respondi else 'Responder (a minha avaliação)' }}</a>
+</p>
+
+<details class="painel-estat" open>
+  <summary>Gráficos</summary>
+  <ul class="kpis">
+    <li><b>{{ respostas|length }}</b><span>respostas</span></li>
+    <li class="k-verde"><b>{{ ('%.1f'|format(resumo.media))|replace('.', ',') if resumo.media is not none else '—' }}</b><span>avaliação global (de 5)</span></li>
+    <li class="k-azul"><b>{{ resumo.pct_alta }} %</b><span>deram 4 ou 5 no global</span></li>
+  </ul>
+  {% set niveis = escala %}{% set titulo = 'Avaliação da organização, todos' %}{% set itens = itens %}
+  {% include "_grafico_notas.html" %}
+  {% for gr in itens_por_grupo %}
+  <h3>{{ gr.nome }} <span class="suave">({{ gr.n }})</span></h3>
+  {% set itens = gr.itens %}{% set titulo = gr.nome %}
+  {% include "_grafico_notas.html" %}
+  {% endfor %}
+  {% for b in blocos %}{% if b.respostas %}
+  <h3>{{ b.titulo }} <span class="suave">({{ b.respostas|length }})</span></h3>
+  {% set itens = blocos_itens[loop.index0] %}{% set titulo = b.titulo %}{% set niveis = escala %}
+  {% include "_grafico_notas.html" %}
+  {% endif %}{% endfor %}
+</details>
+
+<h2>Média por aspeto</h2>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Aspeto</th><th class="dir">Média</th>{% for gr in por_grupo %}<th class="dir">{{ gr.nome }}</th>{% endfor %}
+    {% for v, nome in escala %}<th class="dir" title="{{ nome }}">{{ v }}</th>{% endfor %}<th class="dir" title="Não aplicável / sem conhecimento suficiente">N/A</th></tr></thead>
+  <tbody>
+  {% for k, rotulo, _d in perguntas %}{% set m = medias[k] %}
+  <tr><td>{{ loop.index }}. {{ rotulo }}</td>
+    <td class="dir num"><b>{{ '%.1f'|format(m.media) if m.media is not none else '—' }}</b></td>
+    {% for gr in por_grupo %}{% set mg = gr.medias[k] %}<td class="dir num">{{ '%.1f'|format(mg.media) if mg.media is not none else '—' }}</td>{% endfor %}
+    {% for d in m.dist %}<td class="dir num">{{ d or '' }}</td>{% endfor %}<td class="dir num">{{ m.na or '' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Respostas</h2>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Nome</th><th>Grupo</th>{% for k, rotulo, _d in perguntas %}<th class="dir" title="{{ rotulo }}">{{ loop.index }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for a in respostas %}
+  <tr><td>{{ a.nome }}<br><span class="suave">{{ para_local(a.criada_em) }}</span></td><td>{{ grupos[a.grupo] }}</td>
+    {% for k, _r, _d in perguntas %}<td class="dir num">{% if not a[k] %}<span class="suave">N/A</span>{% elif a[k] < 3 %}<span class="nota-baixa">{{ a[k] }}</span>{% else %}{{ a[k] }}{% endif %}</td>{% endfor %}</tr>
+  {% else %}
+  <tr><td colspan="{{ perguntas|length + 2 }}" class="vazio">Ainda não há respostas.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="ajuda">Colunas: {% for k, rotulo, _d in perguntas %}{{ loop.index }} {{ rotulo }}{{ ' · ' if not loop.last }}{% endfor %}.</p>
+
+{# Blocos só para a triagem e só para a coordenação (19 Out 2026) #}
+{% for b in blocos %}
+<h2>{{ b.titulo }}</h2>
+<p class="suave">{{ b.intro }} <b>{{ b.respostas|length }}</b> responderam{% if b.em_falta %}; ainda por completar, porque responderam antes de o bloco existir: {{ b.em_falta|join(', ') }}{% endif %}.</p>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Aspeto</th><th class="dir">Média</th>{% for v, nome in escala %}<th class="dir" title="{{ nome }}">{{ v }}</th>{% endfor %}<th class="dir" title="Não aplicável">N/A</th></tr></thead>
+  <tbody>
+  {% for k, rotulo, _d, escala_q in b.perguntas %}{% set m = b.medias[k] %}
+  <tr><td>{{ loop.index }}. {{ rotulo }}{% if escala_q[0][1] != escala[0][1] %}<br><span class="suave">Escala: {% for v, nome in escala_q if v %}{{ v }} {{ nome }}{{ ' · ' if not loop.last }}{% endfor %}</span>{% endif %}</td>
+    <td class="dir num"><b>{{ '%.1f'|format(m.media) if m.media is not none else '—' }}</b></td>
+    {% for d in m.dist %}<td class="dir num">{{ d or '' }}</td>{% endfor %}<td class="dir num">{{ m.na or '' }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% set kt, rotulo_t, _dt = b.texto %}
+<h3>{{ rotulo_t }}</h3>
+{% for a in b.respostas if a[kt] %}
+<div class="caixa comentarios-av">
+  <h3>{{ a.nome }} <span class="suave">· {{ grupos[a.grupo] }}</span></h3>
+  <p class="texto-livre">{{ a[kt] }}</p>
+</div>
+{% else %}<p class="vazio">Sem respostas.</p>
+{% endfor %}
+{% endfor %}
+
+<h2>Explicações das notas 1 e 2</h2>
+{% for x in explicacoes %}
+<div class="caixa comentarios-av">
+  <h3>{{ x.a.nome }} <span class="suave">· {{ grupos[x.a.grupo] }}</span></h3>
+  <dl>{% for o in x.obs %}<dt>{{ o.rotulo }} <span class="nota-baixa">{{ o.nota }}</span></dt><dd>{{ o.texto }}</dd>{% endfor %}</dl>
+</div>
+{% else %}<p class="vazio">Sem explicações.</p>
+{% endfor %}
+
+{% for k, rotulo, _d, _o in textos %}
+<h2>{{ rotulo }}</h2>
+{% set ns = namespace(algum=false) %}
+{% for a in respostas if a[k] %}{% set ns.algum = true %}
+<div class="caixa comentarios-av">
+  <h3>{{ a.nome }} <span class="suave">· {{ grupos[a.grupo] }}</span></h3>
+  <p class="texto-livre">{{ a[k] }}</p>
+</div>
+{% endfor %}
+{% if not ns.algum %}<p class="vazio">Sem respostas.</p>{% endif %}
+{% endfor %}
+{% endblock %}

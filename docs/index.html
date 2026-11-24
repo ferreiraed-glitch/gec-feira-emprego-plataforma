@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Plataforma da Feira de Emprego — solução de referência (GEC Carnide, FE2026)</title>
+<style>
+:root{--az:#12285a;--am:#f5c400;--cz:#f4f5f8;--tx:#1d2330;--bd:#d7dbe4}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx);background:#fff}
+header{background:var(--az);color:#fff;border-bottom:4px solid var(--am);padding:2rem 1rem}
+header div,main{max-width:62rem;margin:0 auto;padding:0 1rem}
+header h1{margin:.2rem 0;font-size:1.7rem}header p{margin:.2rem 0;opacity:.9}
+nav{background:var(--cz);border-bottom:1px solid var(--bd)}
+nav ul{max-width:62rem;margin:0 auto;padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;list-style:none}
+nav a{color:var(--az);font-weight:600;text-decoration:none}nav a:hover,nav a:focus{text-decoration:underline}
+h2{color:var(--az);border-bottom:2px solid var(--am);padding-bottom:.2rem;margin-top:2.6rem}
+h3{color:var(--az);margin-top:1.6rem}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.95rem}
+th,td{border:1px solid var(--bd);padding:.45rem .6rem;text-align:left;vertical-align:top}
+th{background:var(--cz)}
+code,pre{font-family:ui-monospace,Consolas,monospace;font-size:.88rem}
+code{background:var(--cz);padding:.05rem .3rem;border-radius:3px}
+pre{background:#101828;color:#e8ecf5;padding:1rem;overflow:auto;border-radius:6px;line-height:1.45}
+pre code{background:none;padding:0}
+.nota{border-left:4px solid var(--am);background:#fffbe6;padding:.6rem 1rem;margin:1rem 0}
+.aviso{border-left:4px solid #b42318;background:#fef3f2;padding:.6rem 1rem;margin:1rem 0}
+.caixa{border:1px solid var(--bd);border-radius:6px;padding:.6rem 1rem;background:var(--cz)}
+a{color:#0b4fb3}
+footer{margin:3rem 0 2rem;color:#555;font-size:.9rem}
+svg{max-width:100%;height:auto}
+@media print{nav{display:none}pre{white-space:pre-wrap}}
+</style>
+</head>
+<body>
+<header><div>
+<p>GEC · Grupo de Empregabilidade de Carnide · XI Feira de Emprego, 13 Out 2026</p>
+<h1>Plataforma da Feira de Emprego: solução de referência</h1>
+<p>Do formulário de candidatura aos dashboards por perfil. Descrição para servir de base à plataforma da REDEmprega Lisboa.</p>
+</div></header>
+<nav aria-label="Secções"><ul>
+<li><a href="#resumo">Resumo</a></li><li><a href="#links">Links</a></li><li><a href="#arq">Arquitectura</a></li>
+<li><a href="#ligacao">Formulário ↔ dashboards</a></li><li><a href="#vagas">Reabertura de vagas</a></li>
+<li><a href="#dash">Dashboards</a></li><li><a href="#stack">Stack</a></li><li><a href="#repro">Reproduzir</a></li>
+<li><a href="#licoes">Lições</a></li><li><a href="#limites">Limites</a></li><li><a href="#licenca">Licença</a></li>
+</ul></nav>
+<main>
+
+<h2 id="resumo">1. Resumo</h2>
+<p>A plataforma gere a inscrição de candidatos em ofertas de várias empresas, a triagem pelos técnicos das entidades, o agendamento das entrevistas, o acompanhamento no dia do evento e a avaliação final. Foi construída em poucas semanas, com software livre, alojada em contentores num servidor próprio e exposta por um túnel Cloudflare.</p>
+<p>Números da edição de 2026: 14 empresas com cerca de 40 ofertas, cerca de 300 candidaturas, 5 perfis de acesso (coordenação, técnico de triagem, técnico da entidade, empresa, receção), e-mails automáticos a candidatos e técnicos.</p>
+<div class="nota"><strong>Ideia central.</strong> O formulário (Formbricks) só recolhe respostas. Os dashboards <em>não</em> escrevem no formulário: escrevem numa base de dados própria (SQLite). Um processo automático (o «R1»), que corre de minuto a minuto, lê essa base e as respostas e <em>reconstrói o formulário público</em> através da API. É assim que uma anulação feita por um técnico volta a abrir uma vaga para novos candidatos.</div>
+
+<h2 id="links">2. Links</h2>
+<table>
+<tr><th>O quê</th><th>Endereço</th><th>Estado (24 Nov 2026)</th></tr>
+<tr><td>Formulário de candidatura a vagas (candidatos, via técnicos das entidades)</td><td><a href="https://formularios.exemplo.org/s/SURVEY_ID">formularios.exemplo.org/s/SURVEY_ID</a></td><td>Encerrado a 9 Out 2026, 13:00 (abre e mostra «formulário concluído»). Serve para consultar o desenho.</td></tr>
+<tr><td>Página pública da Feira</td><td><a href="https://gec-carnide.pt/feira-emprego-2026/">gec-carnide.pt/feira-emprego-2026</a></td><td>Publicada</td></tr>
+<tr><td>Dashboards de demonstração (dados fictícios)</td><td><code>https://demo.exemplo.org/?t=&lt;token&gt;</code></td><td>Um link por perfil. O token é pessoal e fornece-se à parte; não consta deste documento.</td></tr>
+<tr><td>Dashboards de produção</td><td><code>https://dashboard.exemplo.org</code></td><td>Dados reais; acesso só com link pessoal. <strong>Não partilhar.</strong></td></tr>
+<tr><td>Formulário de inscrição das empresas</td><td colspan="2"><strong>A confirmar:</strong> em 2026 as empresas e as ofertas foram carregadas pela coordenação a partir do catálogo de ofertas (<code>empresas-config.json</code> e o formulário construído por API), não por um formulário próprio. Se existir um formulário de recolha junto das empresas, o endereço tem de ser acrescentado aqui.</td></tr>
+</table>
+<p>Cada link de dashboard leva <code>?t=&lt;token&gt;</code>. No primeiro acesso o token passa para um cookie e sai do endereço; na base de dados fica só o sha256.</p>
+
+<h2 id="arq">3. Arquitectura</h2>
+<svg viewBox="0 0 900 360" role="img" aria-label="Diagrama: candidatos preenchem o Formbricks; o exportador copia as respostas para SQLite; os dashboards escrevem em SQLite; o R1 lê SQLite e respostas e actualiza o formulário por API">
+<defs><marker id="s" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#12285a"/></marker></defs>
+<g font-family="system-ui,sans-serif" font-size="14" fill="#12285a" stroke="#12285a" stroke-width="1.5">
+<rect x="10" y="20" width="170" height="70" rx="8" fill="#fff"/><text x="95" y="50" text-anchor="middle" stroke="none">Técnicos das entidades</text><text x="95" y="70" text-anchor="middle" stroke="none">preenchem pelo candidato</text>
+<rect x="260" y="20" width="200" height="70" rx="8" fill="#fff8d6"/><text x="360" y="50" text-anchor="middle" stroke="none" font-weight="700">Formbricks (CT127)</text><text x="360" y="70" text-anchor="middle" stroke="none">formulário + MinIO (CVs)</text>
+<rect x="260" y="150" width="200" height="70" rx="8" fill="#fff"/><text x="360" y="178" text-anchor="middle" stroke="none" font-weight="700">Exportador (5 min)</text><text x="360" y="198" text-anchor="middle" stroke="none">respostas → linhas</text>
+<rect x="540" y="150" width="200" height="70" rx="8" fill="#fff8d6"/><text x="640" y="178" text-anchor="middle" stroke="none" font-weight="700">SQLite (CT129)</text><text x="640" y="198" text-anchor="middle" stroke="none">candidaturas, estados, tokens</text>
+<rect x="640" y="260" width="240" height="80" rx="8" fill="#fff"/><text x="760" y="290" text-anchor="middle" stroke="none" font-weight="700">Dashboards (Flask)</text><text x="760" y="310" text-anchor="middle" stroke="none">5 perfis · escrevem na BD</text>
+<rect x="260" y="270" width="230" height="70" rx="8" fill="#fff"/><text x="375" y="298" text-anchor="middle" stroke="none" font-weight="700">R1 · capacidade (1 min)</text><text x="375" y="318" text-anchor="middle" stroke="none">decide o que o formulário mostra</text>
+<path d="M180 55 H258" marker-end="url(#s)" fill="none"/>
+<path d="M360 90 V148" marker-end="url(#s)" fill="none"/>
+<path d="M460 185 H538" marker-end="url(#s)" fill="none"/>
+<path d="M760 260 V222 H700" marker-end="url(#s)" fill="none"/>
+<path d="M640 220 V305 H492" marker-end="url(#s)" fill="none" stroke-dasharray="5 4"/>
+<path d="M260 300 H230 Q215 300 215 285 V55 Q215 40 230 40 H258" marker-end="url(#s)" fill="none" stroke-dasharray="5 4"/>
+</g>
+<text x="225" y="170" font-family="system-ui,sans-serif" font-size="12" fill="#12285a" transform="rotate(-90 225 170)">PATCH /api/v3/surveys</text>
+</svg>
+<p>Traço contínuo: dados. Traço interrompido: o R1 lê a base e escreve no formulário por API.</p>
+<table>
+<tr><th>Contentor</th><th>Função</th></tr>
+<tr><td>CT127 · Debian 12 + Docker</td><td>Formbricks com PostgreSQL, Redis e MinIO. Recolhe as respostas e guarda os CVs.</td></tr>
+<tr><td>CT129 · Debian 12, sem Docker</td><td>Exportador, R1, dashboards, e-mails e backups. Mantido à parte do Formbricks para que o que é exposto às empresas não tenha acesso à administração do formulário. Eliminar os dados aos 90 dias reduz-se a apagar este contentor.</td></tr>
+<tr><td>Túnel Cloudflare</td><td>Uma rota por serviço (<code>form-gec</code>, <code>fe2026-gec</code>, <code>fe2026-demo</code>). Sem portas abertas no router.</td></tr>
+</table>
+
+<h2 id="ligacao">4. Como os dashboards se ligam ao formulário</h2>
+<p>Não existe ligação directa. Há três ligações, todas assíncronas e através de ficheiros e da API:</p>
+<ol>
+<li><strong>Formulário → base de dados.</strong> <code>exportar_candidaturas.py</code> corre de 5 em 5 minutos, lê as respostas terminadas pela API de gestão do Formbricks e cria uma linha por candidatura (candidato × empresa). Cada submissão é tratada uma só vez; o que a coordenação alterar à mão não é desfeito na sincronização seguinte.</li>
+<li><strong>Dashboards → base de dados.</strong> Todas as acções (validar, anular, atribuir técnico, marcar horário, check-in, seguimento, avaliação) gravam em SQLite, com registo na tabela <code>acessos</code> (quem, quando, o quê, IP).</li>
+<li><strong>Base de dados → formulário.</strong> O R1 lê as respostas, lê (só leitura) os estados da base e decide que empresas continuam disponíveis. Altera o formulário publicado com <code>PATCH /api/v3/surveys/{id}</code>, depois de guardar uma cópia completa do formulário anterior.</li>
+</ol>
+<p>Os CVs ficam no MinIO do Formbricks. O dashboard descarrega-os pela rede interna com a chave API e entrega-os às empresas com marca de água («Fornecido a EMPRESA · data»). Se a marca de água falhar, o CV não é servido.</p>
+
+<h2 id="vagas">5. Reabertura de vagas e outras acções dos dashboards sobre o formulário</h2>
+<h3>Desenho do formulário</h3>
+<ul>
+<li><strong>Ecrã mestre:</strong> escolha múltipla com uma opção por empresa e <code>maxSelections: 3</code>. Bloqueia à terceira escolha.</li>
+<li><strong>Um bloco por empresa</strong> com as respectivas ofertas. A lógica do bloco mestre salta só para as empresas escolhidas, com saída para o ecrã de protecção de dados.</li>
+<li>O formulário é construído e alterado por API: empresas e ofertas vêm de um ficheiro (<code>formbricks-empresas-mapping.json</code>), não de edição manual.</li>
+</ul>
+<h3>R1: o ciclo de capacidade (cada minuto)</h3>
+<ol>
+<li>Conta as inscrições por empresa. Só contam respostas terminadas, e uma resposta repetida (mesmo NIF ou documento) não conta duas vezes.</li>
+<li>Para cada candidatura já existente na base, vale o estado da base: <strong>anulada não ocupa lugar</strong>; validada ou reposta à mão ocupa sempre.</li>
+<li>Se <code>inscrições ≥ capacidade</code>, retira do ecrã mestre a opção da empresa e todas as regras de salto que a referem. O bloco da empresa fica no formulário, mas inalcançável.</li>
+<li>Se a contagem baixar (por exemplo, o técnico anulou uma candidatura), repõe a opção na posição original e as regras de salto.</li>
+<li>Uma empresa que desistiu (<code>DESISTENCIAS</code>) é retirada sempre, qualquer que seja a contagem.</li>
+</ol>
+<div class="nota">Isto resolveu uma limitação do Formbricks: não há opção «desactivada» numa escolha múltipla, e as <em>Quotas</em> nativas exigem licença Enterprise. Retirar e repor a opção por API dá o mesmo efeito sem licença.</div>
+<h3>Acções dos dashboards que mudam o que o formulário mostra</h3>
+<table>
+<tr><th>Acção (perfil)</th><th>Efeito no formulário (até 1 min)</th></tr>
+<tr><td>Anular candidatura (técnico, coordenação)</td><td>Liberta uma vaga na empresa; se esta estava retirada, volta ao ecrã mestre.</td></tr>
+<tr><td>Voltar a «Por validar» ou validar uma anulada (coordenação)</td><td>A candidatura volta a ocupar lugar; a empresa pode voltar a fechar.</td></tr>
+<tr><td>Alterar a capacidade de uma empresa (<code>empresas-config.json</code> e <code>CAPACITY</code>)</td><td>Reabre ou fecha a empresa conforme a nova contagem. Os dois valores têm de coincidir (há um teste).</td></tr>
+<tr><td>Desistência de uma empresa</td><td>Retirada do formulário; as candidaturas anulam-se com nota; não contam para as 3 empresas do candidato.</td></tr>
+<tr><td>Fecho do formulário (<code>fechar_formulario.py</code>, cron)</td><td>Passa o inquérito a <code>completed</code> à hora marcada. A API v3 não expõe a data de fecho.</td></tr>
+</table>
+<h3>Regras de negócio aplicadas na base</h3>
+<ul>
+<li>Máximo de <strong>3 empresas por candidato</strong>, agrupando por NIF <em>ou</em> documento (transitivamente). Passa a candidatura repetida ou a 4.ª, por ordem de chegada, a «Anulado» com nota automática. Uma anulação feita à mão liberta a vaga na empresa, mas continua a contar para as 3 do candidato.</li>
+<li>NIF e documentos fictícios (<code>000000000</code>, <code>123456789</code>…) não identificam ninguém e não geram duplicados.</li>
+<li>Reversão de uma anulação automática: só a coordenação. A nota automática sai quando o estado deixa de ser «Anulado».</li>
+<li>Marcação de horário: só a candidaturas validadas, em transacção <code>BEGIN IMMEDIATE</code> que volta a verificar sobreposições e lotação. Os horários extra («tolerância») só reduzem a lista de espera.</li>
+<li>Lista de espera pela ordem de validação (microssegundos), sem empates.</li>
+</ul>
+
+<h2 id="dash">6. Dashboards e perfis</h2>
+<table>
+<tr><th>Perfil</th><th>Vê e faz</th></tr>
+<tr><td>Coordenação</td><td>Tudo. Atribui técnicos (um a um ou por empresa), valida, marca horários, vê vagas (<code>/vagas</code>), exporta CSV, abre a receção, fecha o dia, consulta estatísticas e avaliações.</td></tr>
+<tr><td>Técnico de triagem</td><td>Só as candidaturas com o seu identificador. Valida, anula, escolhe horário; vê a ocupação das agendas mas só os nomes dos seus.</td></tr>
+<tr><td>Técnico da entidade</td><td>Os candidatos que inscreveu: estado, horário, observações; no dia, acompanhamento e seguimento dos que foram entrevistados.</td></tr>
+<tr><td>Empresa</td><td>Só leitura e só dos candidatos validados para ela: agenda, contactos, ofertas, CV com marca de água. Sem NIF nem documento.</td></tr>
+<tr><td>Receção</td><td>Check-in em tablet: presente, entrevista feita, acertos de hora. Nada mais.</td></tr>
+</table>
+<p>Segurança: tokens guardados em hash, cookie HttpOnly/Secure/SameSite, token CSRF em todos os formulários, <code>no-store</code>, <code>noindex</code>, CSP restritiva, <code>Referrer-Policy: no-referrer</code>, registo de acessos. Sem JavaScript obrigatório e sem recursos externos.</p>
+<p>E-mails (SMTP, com cópia em Enviados): ponto de situação diário aos técnicos, resultado aos candidatos, links pessoais, avisos de endereços devolvidos, relatório do fecho do dia. Cada mensagem tem assinatura do conteúdo para nunca repetir o mesmo aviso.</p>
+
+<h2 id="stack">7. Stack</h2>
+<table>
+<tr><th>Camada</th><th>Tecnologia</th></tr>
+<tr><td>Formulário</td><td>Formbricks (self-hosted, Docker Compose), PostgreSQL com pgvector, Redis (Valkey), MinIO para ficheiros</td></tr>
+<tr><td>Dados</td><td>SQLite com backup <code>.backup</code> de 6 em 6 horas (28 cópias)</td></tr>
+<tr><td>Aplicação</td><td>Python 3.11 (Debian 12), Flask 2.2 e gunicorn do sistema, sem <code>pip</code>; <code>reportlab</code> e <code>pypdf</code> para PDF e marca de água. Templates Jinja, sem JavaScript obrigatório</td></tr>
+<tr><td>Automação</td><td><code>cron</code> + <code>flock</code>: exportação (5 min), R1 (1 min), backup, e-mails, fecho do formulário. Serviços <code>systemd</code> para os dashboards</td></tr>
+<tr><td>Acesso</td><td>Cloudflare Tunnel (uma rota por serviço, DNS por API)</td></tr>
+<tr><td>Infra</td><td>Proxmox, contentores LXC (CT127 com Docker, CT129 sem)</td></tr>
+<tr><td>E-mail</td><td>SMTP SSL com cópia por IMAP</td></tr>
+<tr><td>Testes</td><td>Mais de 90 testes automáticos (exportador, R1, entidades, dashboard), com dados fictícios</td></tr>
+</table>
+
+<h2 id="repro">8. Como reproduzir</h2>
+<ol>
+<li><strong>Formbricks:</strong> instância dedicada (Docker Compose do projecto). Criar uma chave API de gestão da organização.</li>
+<li><strong>Formulário:</strong> gerar por API a partir de um ficheiro de empresas e ofertas: bloco de entidade, de candidato, mestre, um por empresa, RGPD. Guardar o mapeamento empresa → <code>choiceId</code>/<code>blockId</code>.</li>
+<li><strong>CT de dados:</strong> copiar exportador, R1, dashboards e configuração; criar o utilizador de sistema, a pasta da BD (modo 700) e o ficheiro de credenciais (modo 640, só com URL e chave).</li>
+<li><strong>Agendar</strong> exportação (5 min), R1 (1 min, com <code>flock</code>) e backup.</li>
+<li><strong>Tokens:</strong> criar os links por perfil (<code>fe2026-tokens criar --perfil … --nome …</code>), com validade.</li>
+<li><strong>Túnel e DNS:</strong> uma rota por serviço.</li>
+<li><strong>Demonstração:</strong> BD separada com dados fictícios (<code>demo/criar_demo.py</code>), recusa-se a escrever na BD de produção.</li>
+</ol>
+<pre><code># Esboço de ordem de publicação de alterações
+1. exportador   (migra a BD)
+2. R1           (lê a BD migrada)
+3. dashboard    (reinicia o serviço)
+# Backup do código e da BD antes de cada passo.</code></pre>
+<p>O código desta edição está em <a href="https://github.com/ferreiraed-glitch/gec-feira-emprego-plataforma">github.com/ferreiraed-glitch/gec-feira-emprego-plataforma</a>, com dados, nomes, credenciais e logótipos retirados. Ver o <code>README.md</code> para a estrutura e os passos de instalação.</p>
+
+<h2 id="licoes">9. Lições para a plataforma da REDEmprega</h2>
+<ul>
+<li>A lógica condicional do Formbricks lê qualquer pergunta anterior; a de outras ferramentas testadas (HeyForm) só lê a própria. Foi isto que decidiu a escolha.</li>
+<li>As respostas de escolha guardam o <strong>texto</strong> da opção, não o identificador. Alterar um rótulo desliga-o das respostas antigas.</li>
+<li>Um arranque a frio do Formbricks com o serviço <code>hub</code> antes da aplicação quebra a migração (<code>P3005</code>): arrancar primeiro a aplicação, depois o resto.</li>
+<li>Várias organizações na mesma instância exigem licença Enterprise; uma instância por entidade evita-o.</li>
+<li>Os textos traduzíveis têm de usar o código de idioma real (<code>pt-PT</code>), não <code>default</code>.</li>
+<li>O formulário aberto num browser não vê o R1: quem o abriu antes do fecho ainda pode submeter. O excesso resolve-se na validação e na lista de espera.</li>
+<li>Para uma plataforma partilhada, convém uma base de dados única (PostgreSQL), perfis por entidade e registo de consentimentos desde o início.</li>
+</ul>
+
+<h2 id="licenca">Licença</h2><p>Código: <a href="https://eupl.eu/1.2/pt">EUPL-1.2</a>. Documentação: CC BY-SA 4.0. Marcas e logótipos (GEC, REDEmprega, Lisboa, empresas) não estão incluídos nem licenciados. Copyright © 2026 Eduardo Ferreira. Desenvolvido para o GEC – Grupo de Empregabilidade de Carnide e cedido sem contrapartida, para adaptação por outras organizações.</p>
+<h2 id="limites">10. Limites e cuidados</h2>
+<div class="aviso"><strong>Dados pessoais.</strong> A solução trata NIF, documentos, CVs e contactos. O repositório e este documento não contêm dados reais, tokens nem credenciais. Qualquer cópia do código para partilha deve sair de uma versão limpa (sem BD, backups, aliases de e-mail, nomes de técnicos nem mapeamentos reais).</div>
+<ul>
+<li>Desenho feito para um evento de um dia e 14 empresas; escala e multi-evento não foram testados.</li>
+<li>O R1 tem até 1 minuto de atraso, mais até 5 minutos na sincronização da base.</li>
+<li>A chave API usada é de gestão; devia ser só de leitura para o que fica exposto.</li>
+<li>Os dashboards de produção correm com as versões do Debian 12; os testes só passam nesse ambiente.</li>
+</ul>
+
+<footer>Documento de referência · GEC Carnide · Novembro de 2026. Versão técnica completa: <code>FE2026/PROJECT.md</code> e <code>FE2026/FE2026 — Formulário de Candidaturas - ESPECIFICACAO.md</code>.</footer>
+</main>
+</body>
+</html>

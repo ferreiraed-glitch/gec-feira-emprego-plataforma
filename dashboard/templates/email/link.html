@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{# Link pessoal do dashboard para cada técnico de entidade (7 Out 2026): um e-mail por pessoa, só com o seu link. #}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">Obrigado por ter inscrito candidatos{% if l.entidade %} pela entidade <b>{{ l.entidade }}</b>{% endif %} na XI Feira de Emprego de Carnide.</p>
+<p style="margin:0 0 12px;">Preparámos um <b>dashboard</b> onde pode acompanhar, quase em tempo real, o estado da validação dos candidatos que inscreveu: se a candidatura está por validar, validada (com a hora da entrevista ou em lista de espera) ou anulada, e as observações dos técnicos validadores. A informação actualiza-se de 5 em 5 minutos.</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ l.link }}" style="display:inline-block;padding:12px 26px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:15px;">Abrir o meu dashboard</a>
+  </td>
+</tr></table>
+
+<p style="margin:0 0 12px;font-size:14px;"><b>O link é pessoal.</b> Dá acesso a dados pessoais dos candidatos que inscreveu e cada acesso fica registado em seu nome: por favor, não o reencaminhe nem o partilhe. Se um colega também inscreveu candidatos, recebe o seu próprio link.</p>
+<p style="margin:0 0 12px;font-size:14px;">É válido até {{ validade }}. No primeiro acesso o browser guarda a sessão; depois basta voltar a abrir o link. {% if ate %}É só de consulta: a validação e a marcação das entrevistas são feitas pelos técnicos validadores e pela coordenação.</p>
+<p style="margin:0 0 12px;font-size:14px;">Vai receber também, às 18:00 até {{ ate.strftime('%d/%m') }}, um e-mail com o ponto de situação dos seus candidatos, sempre que houver alterações.{% else %}Depois da Feira, o botão «Acompanhamento» mostra o que aconteceu a cada candidato e permite registar novidades.{% endif %}</p>
+<p style="margin:0;font-size:13px;color:#4A6172;">Se o botão não funcionar, copie este endereço para o browser:<br><span style="word-break:break-all;">{{ l.link }}</span></p>
+{% endblock %}
+{% block nota_rodape %}Mensagem pessoal enviada pela coordenação da Feira de Emprego. Contém um link de acesso individual: não a reencaminhe.{% endblock %}

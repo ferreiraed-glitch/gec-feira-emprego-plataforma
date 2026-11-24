@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{# Aviso ao técnico quando o e-mail a um candidato que inscreveu volta devolvido (8 Out 2026). #}
+{% set cores = {
+  "marcado": "background:#E3F2E8;color:#1D5C33;border:1px solid #B7DBC3;",
+  "espera": "background:#E1EEF6;color:#0B4A70;border:1px solid #B5D2E4;",
+  "anulado": "background:#EEF1F3;color:#4A6172;border:1px solid #C4D6DE;",
+} %}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">Hoje às 18:00 enviámos a cada candidato um e-mail com o resultado das suas candidaturas à XI Feira de Emprego de Carnide e, quando há entrevista, a hora marcada. {{ 'Os e-mails destes candidatos que inscreveu <b>voltaram devolvidos</b>'|safe if pessoas|length > 1 else 'O e-mail deste candidato que inscreveu <b>voltou devolvido</b>'|safe }}: o endereço parece não existir ou a caixa está cheia.</p>
+
+{% for p in pessoas %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:14px;margin:8px 0 14px;border:1px solid #C4D6DE;border-radius:8px;">
+  <tr><td style="padding:8px 10px;background:#F4F7F9;border-bottom:1px solid #C4D6DE;">
+    <b>{{ p.nome }}</b><br><span style="font-size:13px;color:#4A6172;">E-mail que falhou: <span style="word-break:break-all;">{{ p.falhados|join(', ') }}</span></span>
+  </td></tr>
+  {% for i in p.itens %}
+  <tr><td style="padding:7px 10px;border-bottom:1px solid #E3EAEE;">
+    {{ i.empresa }}<br>
+    {% if i.classe == 'marcado' %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.marcado }}">Entrevista</span> <b>13 Out, às {{ i.hora }}</b> <span style="font-size:13px;color:#4A6172;">(até às {{ i.fim }})</span>
+    {% elif i.classe == 'espera' %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.espera }}">Lista de espera</span>
+    {% else %}<span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores.anulado }}">Não seguiu para entrevista</span>{% endif %}
+  </td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+<p style="margin:0 0 12px;">Pode, por favor, passar-lhe{{ 's' if pessoas|length > 1 }} esta informação, de preferência <b>por telefone</b>? Se souber o e-mail certo, responda a esta mensagem com ele: passa a ser usado nos próximos avisos.</p>
+<p style="margin:0;font-size:14px;color:#4A6172;">A informação está também no seu dashboard e no ponto de situação que recebe às 18:00.</p>
+{% endblock %}
+{% block nota_rodape %}Mensagem enviada pela coordenação da XI Feira de Emprego de Carnide ao técnico que inscreveu os candidatos.{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+Este é o ponto de situação, às {{ data.strftime('%H:%M') }} de {{ data.strftime('%d/%m') }}, das candidaturas que inscreveu{% if g.entidade %} pela entidade {{ g.entidade }}{% endif %} na XI Feira de Emprego de Carnide.
+
+{{ g.resumo.pendente }} por validar · {{ g.resumo.marcado }} com entrevista · {{ g.resumo.espera }} em espera · {{ g.resumo.anulado }} anuladas
+
+{% for l in g.linhas %}
+- {{ l.candidato }} · {{ l.empresa }} · {{ l.estado }}{% if l.entrevista != '—' %} · {{ l.entrevista }}{% endif %}
+
+{% if l.observacoes %}
+  Observações: {{ l.observacoes|replace('\r', '')|replace('\n', ' · ') }}
+{% endif %}
+{% endfor %}
+
+As entrevistas realizam-se a 13 de Outubro, na Lispolis. Uma candidatura validada em lista de espera recebe horário quando houver um lugar livre. Pode consultar o estado a qualquer momento no link pessoal do dashboard que recebeu por e-mail.
+
+Este ponto de situação é enviado automaticamente às 18:00, até {{ ate.strftime('%d/%m') }}, quando houver alterações. Para esclarecer alguma situação, responda a este e-mail.
+{% endblock %}

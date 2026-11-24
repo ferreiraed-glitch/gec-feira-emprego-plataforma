@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Vagas disponíveis{% endblock %}
+{% block conteudo %}
+<p class="migalhas nao-imprimir"><a href="{{ url_for('lista') }}">← Candidaturas</a></p>
+<div class="cabeca">
+  <h1>Vagas disponíveis nas ofertas</h1>
+  <p class="suave">Situação a {{ agora }}{% if sincronizado %}, com as inscrições sincronizadas a {{ sincronizado }}{% endif %}.
+    Vagas = capacidade da empresa menos as inscrições recebidas, contadas como no formulário: as candidaturas anuladas (à mão ou por inscrição repetida) não ocupam lugar.</p>
+</div>
+<p class="accoes nao-imprimir"><a class="botao-sec" href="{{ url_for('vagas_csv') }}">Descarregar CSV</a> <span class="suave">Para imprimir, use Ctrl+P.</span></p>
+
+{% if abertas %}
+<div class="tabela-rola">
+<table class="lista">
+  <thead><tr><th>Empresa</th><th>Ofertas</th><th class="dir">Vagas</th><th class="dir">Inscrições</th></tr></thead>
+  <tbody>
+  {% for v in abertas %}
+  <tr>
+    <td><b>{{ v.e.empresa }}</b></td>
+    <td>{% if v.e.ofertas %}{{ v.e.ofertas.split(' | ')|join(' · ') }}{% else %}<span class="suave">—</span>{% endif %}</td>
+    <td class="num dir"><b>{{ v.livres if v.livres is not none else '—' }}</b></td>
+    <td class="num dir suave">{{ v.inscritas }}{% if v.capacidade is not none %} / {{ v.capacidade }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="suave">{{ abertas|length }} empresa{{ 's' if abertas|length != 1 }} com vagas · {{ abertas|sum(attribute='livres') }} vagas no total.</p>
+
+<section class="caixa nao-imprimir">
+  <h2>Texto para enviar aos técnicos</h2>
+  <p class="ajuda">Seleccione o texto e copie-o para um e-mail ou mensagem.</p>
+  <textarea readonly rows="{{ abertas|length + 4 }}">Feira de Emprego 2026 — vagas disponíveis a {{ agora }}
+{% for v in abertas %}
+• {{ v.e.empresa }}{% if v.livres is not none %}: {{ v.livres }} vaga{{ 's' if v.livres != 1 }}{% endif %}{% if v.e.ofertas %} ({{ v.e.ofertas.split(' | ')|join(', ') }}){% endif %}{% endfor %}
+
+Inscrições em https://formularios.exemplo.org/s/SURVEY_ID</textarea>
+</section>
+{% else %}
+<p class="vazio">Nenhuma empresa tem vagas para novas inscrições.</p>
+{% endif %}
+
+{% if fechadas %}
+<section class="caixa">
+  <h2>Sem vagas</h2>
+  <table class="lista compacta">
+    <thead><tr><th>Empresa</th><th>Situação</th><th class="dir">Inscrições</th></tr></thead>
+    <tbody>{% for v in fechadas %}
+    <tr><td>{{ v.e.empresa }}</td><td>{{ v.situacao }}</td>
+      <td class="num dir">{{ v.inscritas }}{% if v.capacidade is not none %} / {{ v.capacidade }}{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  <p class="ajuda">«Retirada do formulário» com vagas por preencher acontece quando a contagem ainda não foi actualizada no formulário (até 1 minuto) ou nesta página (até 5 minutos).</p>
+</section>
+{% endif %}
+{% endblock %}

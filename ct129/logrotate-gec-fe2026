@@ -1,0 +1,10 @@
+# /etc/logrotate.d/gec-fe2026 (CT129)
+/var/log/gec-fe2026/*.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+    create 0600 fe2026 fe2026
+    su fe2026 fe2026
+}

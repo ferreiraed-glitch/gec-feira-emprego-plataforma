@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Acompanhamento{% endblock %}
+{% block conteudo %}
+<p class="migalhas"><a href="{{ url_for('lista') }}">← Candidaturas</a></p>
+<div class="cabeca">
+  <h1>Acompanhamento dos candidatos</h1>
+  <p class="suave">O que aconteceu aos candidatos depois da Feira. As empresas preenchem no seu link até 90 dias depois da Feira, e desde 13 Out também o técnico da entidade que inscreveu o candidato (no mesmo registo, com a indicação de quem actualizou). A coordenação pode abrir cada empresa e preencher por ela. «Extra» são as entrevistas acrescentadas no dia, na receção.</p>
+</div>
+<p class="accoes"><a class="botao-sec" href="{{ url_for('seguimento_csv') }}">Descarregar CSV (todas as empresas)</a></p>
+{% if resumo %}
+<div class="tabela-rola">
+<table class="lista">
+  <thead><tr><th>Empresa</th><th class="dir">Validados</th><th class="dir">Extra</th><th class="dir">Entrevistas feitas</th><th class="dir">Com acompanhamento</th><th class="dir">Nova entrevista</th><th class="dir">Selecionados</th><th class="dir">Contratados</th><th></th></tr></thead>
+  <tbody>
+  {% for x in resumo %}
+  <tr><td><b>{{ x.e.empresa }}</b></td><td class="dir num">{{ x.validadas }}</td><td class="dir num">{{ x.extra or '' }}</td><td class="dir num">{{ x.feitas }}</td><td class="dir num">{{ x.preenchidas }}</td>
+    <td class="dir num">{{ x.nova_entrevista }}</td><td class="dir num">{{ x.selecionado }}</td><td class="dir num">{{ x.contratado }}</td>
+    <td><a class="botao-sec" href="{{ url_for('seguimento_empresa', choice_id=x.e.choice_id) }}">Abrir</a></td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>Total</th><th class="dir num">{{ resumo|sum(attribute='validadas') }}</th><th class="dir num">{{ resumo|sum(attribute='extra') }}</th><th class="dir num">{{ resumo|sum(attribute='feitas') }}</th><th class="dir num">{{ resumo|sum(attribute='preenchidas') }}</th>
+    <th class="dir num">{{ resumo|sum(attribute='nova_entrevista') }}</th><th class="dir num">{{ resumo|sum(attribute='selecionado') }}</th>
+    <th class="dir num">{{ resumo|sum(attribute='contratado') }}</th><th></th></tr></tfoot>
+</table>
+</div>
+{% else %}
+<p class="vazio">Ainda não há candidaturas validadas.</p>
+{% endif %}
+{% endblock %}

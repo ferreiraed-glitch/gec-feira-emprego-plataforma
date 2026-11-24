@@ -1,0 +1,18 @@
+{# Barras horizontais simples (4 Nov 2026), em SVG gerado no servidor. Recebe `linhas`
+   ({rotulo, valor}) e `titulo`; `cor` opcional. #}
+{% set maximo = (linhas|map(attribute='valor')|list + [1])|max %}
+{% set alt = 6.5 %}
+<figure class="grafico g-barras">
+  <figcaption>{{ titulo }}</figcaption>
+  {% if linhas %}
+  <svg viewBox="0 0 150 {{ 3 + linhas|length * alt }}" role="img" aria-label="{{ titulo }}">
+    {% for x in linhas %}
+    {% set y = 2 + loop.index0 * alt %}
+    {% set w = 78 * x.valor / maximo %}
+    <text x="0" y="{{ y + 3.8 }}" font-size="3" fill="#0E2A3B">{{ x.rotulo[:38] }}{{ '…' if x.rotulo|length > 38 }}</text>
+    <rect x="62" y="{{ y }}" width="{{ '%.2f'|format(w) }}" height="4.8" fill="{{ cor|default('#0B5E8E') }}"/>
+    <text x="{{ '%.2f'|format(62 + w + 1.5) }}" y="{{ y + 3.8 }}" font-size="3" fill="#4A6172">{{ x.valor }}</text>
+    {% endfor %}
+  </svg>
+  {% else %}<p class="vazio">Sem dados.</p>{% endif %}
+</figure>

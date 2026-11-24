@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block titulo %}{{ r.cand_nome }} · {{ r.empresa }}{% endblock %}
+{% block conteudo %}
+<p class="migalhas"><a href="{{ url_for('lista') }}">← Candidaturas</a>{% if t.perfil != 'entidade' %} · <a href="{{ url_for('agenda_empresa', choice_id=r.choice_id) }}">Agenda de {{ r.empresa }}</a>{% endif %}</p>
+<div class="cabeca">
+  <h1>{{ r.cand_nome }}</h1>
+  <span class="estado {{ estado[0] }} grande">{{ estado[1] }}</span>
+</div>
+{% if flags %}<p>{% for fl in flags %}<span class="flag">{{ fl }}</span>{% endfor %}</p>{% endif %}
+{% if ok %}<p class="ok">Alterações guardadas.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+<div class="colunas">
+  <section class="caixa">
+    <h2>Candidatura a {{ r.empresa }}</h2>
+    <dl>
+      <dt>Ofertas</dt><dd>{{ r.ofertas_seleccionadas or 'Nenhuma oferta escolhida («Não me candidato»)' }}</dd>
+      {% if catalogo %}<dt>Requisitos</dt><dd><a class="botao-sec" href="{{ url_for('ofertas_pdf', choice_id=r.choice_id) }}" target="_blank" rel="noopener">Ver as ofertas de {{ r.empresa }} no catálogo (PDF, {{ catalogo[1] - catalogo[0] + 1 }} pág.)</a></dd>{% endif %}
+      <dt>Recebida</dt><dd>{{ r.criada_em_local[8:10] }}/{{ r.criada_em_local[5:7] }} às {{ r.criada_em_local[11:16] }} · n.º {{ r.ordem_empresa }} nesta empresa</dd>
+      <dt>CV</dt><dd>{% if r.cv_url %}<a class="botao-sec" href="{{ url_for('ver_cv', id_submissao=r.id_submissao, choice_id=r.choice_id) }}" target="_blank" rel="noopener">Abrir CV (PDF)</a>{% else %}Sem CV{% endif %}</dd>
+    </dl>
+    <h3>Candidato/a</h3>
+    <dl>
+      <dt>Telefone</dt><dd>{{ r.cand_telefone }}</dd>
+      <dt>E-mail</dt><dd>{{ r.cand_email }}</dd>
+      <dt>Localidade</dt><dd>{{ r.cand_localidade }}</dd>
+      <dt>Habilitações</dt><dd>{{ r.cand_habilitacoes }}</dd>
+      {% if ve_docs %}
+      <dt>NIF</dt><dd class="num">{{ r.cand_nif }}</dd>
+      <dt>Documento</dt><dd>{{ r.cand_tipo_doc }} · <span class="num">{{ r.cand_num_doc }}</span></dd>
+      {% endif %}
+    </dl>
+    <h3>Inscrito por</h3>
+    <dl>
+      <dt>Entidade</dt><dd>{{ r.entidade }}</dd>
+      <dt>Técnico/a</dt><dd>{{ r.tecnico_ent }} · {{ r.tecnico_ent_tel }} · {{ r.tecnico_ent_email }}</dd>
+      {% if t.perfil != 'entidade' and (r.entidade_nome != r.entidade or r.entidade_tecnico != r.tecnico_ent or (r.entidade_email or '')|lower|trim != r.tecnico_ent_email) %}
+      <dt>Como foi escrito</dt><dd class="suave">{{ r.entidade_nome }} · {{ r.entidade_tecnico }} · {{ r.entidade_telefone }} · {{ r.entidade_email }}</dd>
+      {% endif %}
+    </dl>
+  </section>
+
+  <section class="caixa destaque">
+    <h2>Validação e entrevista</h2>
+    {% if not pode_editar %}
+    <dl>
+      <dt>Estado</dt><dd><span class="estado {{ estado[0] }}">{{ estado[1] }}</span></dd>
+      {% if r.horario_entrevista %}<dt>Entrevista</dt><dd>13 de Outubro, {{ r.horario_entrevista }}–{{ fim(r.horario_entrevista, r.duracao_entrevista_min) }}</dd>{% endif %}
+      <dt>Observações</dt><dd class="obs-completa">{{ r.observacoes or '—' }}</dd>
+    </dl>
+    <p class="ajuda">Consulta apenas. A validação e a marcação são feitas pelos técnicos validadores e pela coordenação da Feira.</p>
+    {% else %}
+    <form method="post" class="form-validar">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      {% if r.validacao == 'Anulado' and r.validacao_alterada_por == 'Automático (duplicado)' %}
+      <p class="ajuda">Anulada automaticamente como inscrição repetida (ver as observações).
+        {% if t.perfil == 'coordenador' %}Para a reverter, por exemplo quando o técnico reinscreveu o candidato para substituir uma empresa que desistiu, escolha «Por validar» e guarde. Reverta só a empresa nova: as que já constavam da inscrição anterior continuam repetidas.
+        {% else %}Só a coordenação a pode reverter.{% endif %}</p>
+      {% endif %}
+      <fieldset class="estados">
+        <legend>Validação</legend>
+        {% for v in ['Por validar', 'Validado', 'Anulado'] %}
+        <label><input type="radio" name="validacao" value="{{ v }}" {{ 'checked' if r.validacao == v }}> {{ v }}</label>
+        {% endfor %}
+      </fieldset>
+      <label>Horário da entrevista ({{ r.duracao_entrevista_min or '?' }} min)
+        <select name="horario">
+          {% for d in disp %}
+          <option value="{{ d.horario }}" {{ 'class=tolerancia' if d.tolerancia }} {{ 'selected' if sugerido == d.horario }} {{ 'disabled' if not d.livre and r.horario_entrevista != d.horario }}>
+            {{ d.horario }}{% if d.tolerancia %} · tolerância{% endif %}{% if not d.livre %} — {{ d.motivo }}{% elif d.lugares_livres > 1 %} ({{ d.lugares_livres }} lugares){% endif %}
+          </option>
+          {% endfor %}
+          <option value="" {{ 'selected' if not sugerido }}>Sem horário — fica em lista de espera</option>
+        </select>
+      </label>
+      {% if disp|selectattr('tolerancia')|list %}<p class="ajuda aviso-tol">Os horários «tolerância» passam das {{ r.hora_fim }}: a empresa aceita-os, mas use-os só quando os outros estiverem ocupados.</p>{% endif %}
+      <p class="ajuda">Só se marca horário a candidaturas validadas. Sem horário livre, a candidatura validada fica em lista de espera e recebe o lugar de quem faltar. Anular ou voltar a «Por validar» liberta o horário.</p>
+      {% if t.perfil == 'coordenador' %}
+      <label>Técnico/a responsável
+        <select name="id_tecnico"><option value="">— Sem técnico —</option>
+          {% for x in tecnicos %}<option value="{{ x.id_tecnico }}" {{ 'selected' if r.id_tecnico == x.id_tecnico }}>{{ x.nome }} ({{ x.id_tecnico }})</option>{% endfor %}
+        </select></label>
+      {% endif %}
+      <label>Observações <textarea name="observacoes" rows="3">{{ r.observacoes or '' }}</textarea></label>
+      <button type="submit" class="principal">Guardar</button>
+      {% if r.validacao_alterada_em %}<p class="ajuda">Validação alterada por {{ r.validacao_alterada_por }} em {{ para_local(r.validacao_alterada_em) }}.</p>{% endif %}
+    </form>
+    {% endif %}
+  </section>
+</div>
+
+<section class="caixa">
+  <h2>Outras candidaturas do mesmo candidato</h2>
+  {% if outras %}
+  <div class="tabela-rola">
+  <table class="lista compacta">
+    <thead><tr><th>Empresa</th><th>Estado</th>{% if t.perfil != 'entidade' %}<th>Técnico/a</th>{% endif %}<th></th></tr></thead>
+    <tbody>{% for o in outras %}
+    <tr><td>{{ o.empresa }}{% if o.id_submissao != r.id_submissao %} <span class="flag">outra submissão</span>{% endif %}</td>
+      <td>{% if o.horario_entrevista %}<span class="estado marcado{{ ' tolerancia' if tolerancia(o, o.horario_entrevista) }}">{{ o.horario_entrevista }}–{{ fim(o.horario_entrevista, o.duracao_entrevista_min) }}</span>{% else %}{{ o.validacao }}{% endif %}</td>
+      {% if t.perfil != 'entidade' %}<td>{{ o.id_tecnico or '—' }}</td>{% endif %}
+      <td>{% if t.perfil in ('coordenador', 'entidade') or (t.id_tecnico and o.id_tecnico == t.id_tecnico) %}<a href="{{ url_for('detalhe', id_submissao=o.id_submissao, choice_id=o.choice_id) }}">Abrir</a>{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+  </div>
+  <p class="ajuda">Os horários destas entrevistas ficam indisponíveis na lista acima, para o candidato não ser marcado em dois sítios ao mesmo tempo.</p>
+  {% else %}<p class="suave">Nenhuma.</p>{% endif %}
+</section>
+{% endblock %}

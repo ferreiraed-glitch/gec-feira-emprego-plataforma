@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="cabeca">
+  <h1>{% if t.perfil == 'tecnico' %}As minhas candidaturas{% elif t.perfil == 'entidade' %}Candidatos que inscreveu{% else %}Candidaturas{% endif %}</h1>
+  <ul class="resumo">
+    <li class="pendente"><b>{{ resumo['Por validar'] }}</b> por validar</li>
+    <li class="marcado"><b>{{ resumo['marcado'] }}</b> com entrevista</li>
+    <li class="espera"><b>{{ resumo['espera'] }}</b> em espera</li>
+    <li class="anulado"><b>{{ resumo['Anulado'] }}</b> anuladas</li>
+  </ul>
+</div>
+
+{% if t.perfil == 'entidade' %}
+<p class="ajuda">Consulta apenas: o estado de cada candidatura é actualizado pelos técnicos validadores e pela coordenação da Feira. Em caso de dúvida, contacte a coordenação.</p>
+{% else %}
+<p class="accoes">
+  <a class="botao-sec" href="{{ url_for('comunicacao') }}">Listagem de validadas e anuladas, por entidade</a>
+  {% if t.perfil == 'coordenador' %}<a class="botao-sec" href="{{ url_for('vagas') }}">Vagas disponíveis nas ofertas</a>{% endif %}
+</p>
+{% if t.perfil == 'coordenador' %}
+<p class="accoes"><span class="suave">Listagens para o dia da Feira:</span>
+  <a class="botao-sec" href="{{ url_for('listagem_rececao_empresas') }}">Receção · por empresa e horário</a>
+  <a class="botao-sec" href="{{ url_for('listagem_rececao_candidatos') }}">Receção · por candidato (alfabética)</a>
+  <a class="botao-sec" href="{{ url_for('listagem_tecnicos') }}">Agendas para os técnicos (uma página por empresa)</a>
+  <a class="botao-sec" href="{{ url_for('rececao') }}">Check-in na receção (tablet)</a>
+</p>
+{% endif %}
+{% endif %}
+
+{% if av_feira_aviso and av_feira_aviso.tipo == 'novo' %}<p class="aviso-av">Ajude-nos a melhorar: o questionário de avaliação da organização da Feira está disponível. <a class="botao-principal" href="{{ url_for('avaliacao_feira') }}">Responder à avaliação</a></p>
+{% elif av_feira_aviso %}<p class="aviso-av">Obrigado pela sua avaliação! Acrescentámos depois perguntas sobre {{ av_feira_aviso.blocos|map('lower')|join(' e ') }}: são só mais alguns minutos. <a class="botao-principal" href="{{ url_for('avaliacao_feira') }}">Completar a avaliação</a></p>{% endif %}
+{% if request.args.get('msg') %}<p class="ok">{{ request.args.get('msg') }}</p>{% endif %}
+
+<form class="filtros" method="get">
+  <label>Empresa
+    <select name="empresa"><option value="">Todas</option>
+      {% for e in empresas %}<option value="{{ e.choice_id }}" {{ 'selected' if f.empresa == e.choice_id }}>{{ e.empresa }}</option>{% endfor %}
+    </select></label>
+  <label>Estado
+    <select name="estado"><option value="">Todos</option>
+      {% for v, n in [('Por validar','Por validar'), ('Validado','Validado'), ('espera','Em espera'), ('Anulado','Anulado')] %}
+      <option value="{{ v }}" {{ 'selected' if f.estado == v }}>{{ n }}</option>{% endfor %}
+    </select></label>
+  {% if t.perfil == 'coordenador' %}
+  <label>Técnico/a
+    <select name="tecnico"><option value="">Todos</option><option value="_nenhum" {{ 'selected' if f.tecnico == '_nenhum' }}>Sem técnico</option>
+      {% for x in tecnicos %}<option value="{{ x.id_tecnico }}" {{ 'selected' if f.tecnico == x.id_tecnico }}>{{ x.nome }}</option>{% endfor %}
+    </select></label>
+  <label>Entidade
+    <select name="entidade"><option value="">Todas</option>
+      {% for x in entidades|sort %}<option value="{{ x }}" {{ 'selected' if f.entidade == x }}>{{ x }}</option>{% endfor %}
+    </select></label>
+  {% endif %}
+  <label class="cresce">Procurar <input type="search" name="q" value="{{ f.q }}" placeholder="{{ 'Nome, NIF ou documento' if ve_docs else 'Nome do candidato' }}"></label>
+  <button type="submit">Filtrar</button>
+  {% if f.values()|select|list %}<a class="limpar" href="{{ url_for('lista') }}">Limpar</a>{% endif %}
+</form>
+
+{% if linhas %}
+<div class="tabela-rola">
+<table class="lista">
+  <thead><tr>
+    <th>Recebida</th><th>Candidato/a</th><th>Empresa · ofertas</th>{% if t.perfil != 'entidade' %}<th>Entidade</th>{% endif %}
+    {% if t.perfil == 'coordenador' %}<th>Técnico/a</th>{% endif %}<th>Estado</th><th>Observações</th><th></th>
+  </tr></thead>
+  <tbody>
+  {% for l in linhas %}{% set r = l.r %}
+  <tr>
+    <td class="num">{{ r.criada_em_local[8:10] }}/{{ r.criada_em_local[5:7] }} {{ r.criada_em_local[11:16] }}</td>
+    <td><b>{{ r.cand_nome }}</b>
+      {% for fl in l.flags %}<span class="flag">{{ fl }}</span>{% endfor %}</td>
+    <td><b>{{ r.empresa }}</b><br><span class="suave">{{ r.ofertas_seleccionadas or '—' }}</span></td>
+    {% if t.perfil != 'entidade' %}<td class="suave">{{ r.entidade }}{% if t.perfil == 'coordenador' %}<br>{{ r.tecnico_ent }}{% endif %}</td>{% endif %}
+    {% if t.perfil == 'coordenador' %}<td>{{ r.id_tecnico or '—' }}</td>{% endif %}
+    <td><span class="estado {{ l.estado[0] }}{{ ' tolerancia' if l.estado[0] == 'marcado' and tolerancia(r, r.horario_entrevista) }}">{{ l.estado[1] }}</span>{% if l.estado[0] == 'marcado' and tolerancia(r, r.horario_entrevista) %}<br><span class="nota-tol">tolerância</span>{% endif %}</td>
+    <td class="obs">{% if r.observacoes %}<span title="{{ r.observacoes }}">{{ r.observacoes|truncate(90, true, '…', 0) }}</span>{% else %}<span class="suave">—</span>{% endif %}</td>
+    <td><a class="botao-sec" href="{{ url_for('detalhe', id_submissao=r.id_submissao, choice_id=r.choice_id) }}">Abrir</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="suave">{{ linhas|length }} candidatura{{ 's' if linhas|length != 1 }}. Cada linha é um par candidato + empresa.</p>
+{% else %}
+<p class="vazio">{% if t.perfil == 'tecnico' %}Ainda não tem candidaturas atribuídas. A coordenação atribui-as por empresa.{% elif t.perfil == 'entidade' and not f.values()|select|list %}Não há candidaturas inscritas com o seu contacto.{% else %}Nenhuma candidatura com estes filtros.{% endif %}</p>
+{% endif %}
+
+{% if t.perfil == 'coordenador' %}
+<section class="caixa">
+  <h2>Atribuir candidaturas a um técnico</h2>
+  <p class="suave">As candidaturas novas são atribuídas automaticamente, na sincronização (de 5 em 5 min), ao técnico de cada empresa. Use esta caixa só para mudar de técnico ou repartir de outra forma.</p>
+  {% if tecnicos %}
+  <form class="filtros" method="post" action="{{ url_for('atribuir') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label>Empresa <select name="empresa" required>{% for e in empresas %}<option value="{{ e.choice_id }}" {{ 'selected' if f.empresa == e.choice_id }}>{{ e.empresa }}</option>{% endfor %}</select></label>
+    <label>Técnico/a <select name="id_tecnico" required>{% for x in tecnicos %}<option value="{{ x.id_tecnico }}">{{ x.nome }} ({{ x.id_tecnico }})</option>{% endfor %}</select></label>
+    <label class="caixa-check"><input type="checkbox" name="so_sem_tecnico" value="1" checked> Só as que ainda não têm técnico</label>
+    <button type="submit">Atribuir</button>
+  </form>
+  {% else %}
+  <p class="suave">Ainda não há técnicos com acesso. Crie os links com <code>tokens.py criar --perfil tecnico</code>.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% if t.perfil != 'entidade' %}
+<section class="caixa">
+  <h2>Agendas por empresa</h2>
+  <p class="agendas">{% for e in empresas %}<a href="{{ url_for('agenda_empresa', choice_id=e.choice_id) }}">{{ e.empresa }}</a>{% endfor %}</p>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+# /etc/systemd/system/gec-fe2026-demo.service (CT129)
+# Dashboard de DEMONSTRAÇÃO para a formação dos técnicos (30 Set 2026):
+# o mesmo código da produção, mas com uma BD só de dados fictícios
+# (demo/criar_demo.py) e sem acesso ao Formbricks. Desligar depois da formação:
+#   systemctl disable --now gec-fe2026-demo
+[Unit]
+Description=GEC FE2026 — dashboard de demonstração (dados fictícios)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=fe2026
+Group=fe2026
+WorkingDirectory=/opt/gec-fe2026/dashboard
+EnvironmentFile=/etc/gec-fe2026/demo.env
+UMask=0077
+ExecStart=/usr/bin/gunicorn --workers 1 --threads 4 --bind 0.0.0.0:8081 \
+    --access-logfile - --access-logformat '%(t)s %(s)s %(m)s %(U)s %(b)s %(L)ss' app:app
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+# Só a pasta da demonstração: a BD de produção fica fora de alcance.
+ReadWritePaths=/var/lib/gec-fe2026-demo
+InaccessiblePaths=/var/lib/gec-fe2026 /etc/gec-fe2026/formbricks.env
+
+[Install]
+WantedBy=multi-user.target

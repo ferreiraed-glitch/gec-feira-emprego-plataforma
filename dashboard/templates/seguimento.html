@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_seguimento.html" import campos, observacoes, legenda_feira with context %}
+{% block titulo %}Acompanhamento · {{ emp.empresa }}{% endblock %}
+{% block conteudo %}
+{% if t.perfil == 'coordenador' %}<p class="migalhas"><a href="{{ url_for('seguimento') }}">← Seguimento de todas as empresas</a></p>{% endif %}
+<div class="cabeca">
+  <h1>Acompanhamento dos candidatos · {{ emp.empresa }}</h1>
+  <p class="suave">Registe o que aconteceu a cada candidato depois da entrevista na Feira. Pode voltar a esta página e actualizar as respostas até {{ para_local(t.expira_em, '%d/%m/%Y') if t.perfil == 'empresa' else '90 dias depois da Feira' }}. O técnico da entidade que inscreveu o candidato também vê e pode completar este acompanhamento; cada linha mostra quem a actualizou por último.</p>
+</div>
+{% if ok %}<p class="ok">Acompanhamento guardado.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+{% if linhas %}
+<form method="post" class="form-seguimento">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="tabela-rola">
+  <table class="lista seguimento por-empresa">
+    <thead><tr>
+      <th class="col-ent">Entrevista</th><th>Candidato/a</th><th>Fez nova entrevista?</th><th>Foi selecionado?</th>
+      <th>Ficou contratado?</th><th>Tipo de contrato</th><th>Duração do contrato</th>
+    </tr></thead>
+    {# Um tbody por candidato: os campos numa linha e as observações na seguinte, a toda a largura. #}
+    {% for l in linhas %}{% set s = seg.get((l.sid, l.empresa)) %}
+    <tbody class="registo">
+    <tr>
+      <td class="num col-ent" rowspan="2">{% if l.extra %}<span class="hora-ent extra">Extra</span>{% if l.hora != 'Extra' %}<br>{{ l.hora }}{% endif %}{% elif l.espera %}<span class="suave">{{ l.hora }}</span>{% else %}{{ l.hora }}{% endif %}
+        <br>{{ legenda_feira(l.feira) }}</td>
+      <td><b>{{ l.nome }}</b><br><span class="suave">{{ l.telefone }}</span>
+        {% if l.cv and cv_disponivel %}<br><a href="{{ url_for('ver_cv', id_submissao=l.sid, choice_id=l.choice_id) }}" target="_blank" rel="noopener">CV</a>{% endif %}</td>
+      {{ campos(l, loop.index0, s, sim_nao, tipos, assin, quem, com_obs=false) }}
+    </tr>
+    <tr class="linha-obs">
+      <td colspan="6">{{ observacoes(l, loop.index0, s, assin, quem) }}</td>
+    </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+  </div>
+  <p class="ajuda">«Extra» são entrevistas acrescentadas no próprio dia, na receção. «Tipo de contrato» e «Duração» só se aplicam a quem ficou contratado. Use «Outro» e as observações para casos que não caibam na lista.</p>
+  <button type="submit" class="principal">Guardar acompanhamento</button>
+</form>
+{% else %}
+<p class="vazio">Não há candidatos validados para esta empresa.</p>
+{% endif %}
+{% endblock %}

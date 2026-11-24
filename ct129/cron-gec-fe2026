@@ -1,0 +1,25 @@
+# /etc/cron.d/gec-fe2026 (CT129)
+SHELL=/bin/sh
+PATH=/usr/local/bin:/usr/bin:/bin
+*/5 * * * *  fe2026  fe2026-exportar >> /var/log/gec-fe2026/exportar.log 2>&1
+# R1 (capacidade por empresa), desde 1 Out 2026 aqui e não no CT127
+* * * * *    fe2026  fe2026-r1 >> /var/log/gec-fe2026/r1_capacidade.log 2>&1
+15 */6 * * * fe2026  fe2026-backup >> /var/log/gec-fe2026/backup.log 2>&1
+# E-mails às 18:00 (desde 8 Out 2026; até 7 Out o dos técnicos saía também às 13:00):
+# a cada candidato com candidaturas validadas ou anuladas, e o ponto de situação a
+# cada técnico de entidade. Só sai a quem teve alterações e no máximo um por dia;
+# os scripts param depois de 12/10 (FE2026_ESTADO_ATE)
+0 18 * * *     fe2026  fe2026-correio candidatos >> /var/log/gec-fe2026/correio.log 2>&1; fe2026-correio estado >> /var/log/gec-fe2026/correio.log 2>&1
+# Links para os técnicos das entidades que ainda não o têm (8 Out 2026), até 13/10 às 12:00
+0,30 * * * *   fe2026  fe2026-correio links-novos >> /var/log/gec-fe2026/correio.log 2>&1
+# Fecho do formulário a 9 Out 2026 às 13:00 (13:05 é uma segunda tentativa; não faz
+# nada se já estiver fechado). Retirar estas linhas depois da Feira.
+0,5 13 9 10 *  fe2026  fe2026-fechar-formulario >> /var/log/gec-fe2026/fechar-formulario.log 2>&1
+# E-mail final aos técnicos das entidades, preparado no fecho do dia da receção (13 Out
+# 2026): envia o que estiver por enviar; sem nada pendente, não faz nada
+*/2 * 13-31 10 * fe2026  fe2026-correio fecho >> /var/log/gec-fe2026/correio.log 2>&1
+# Acompanhamento (14 Out 2026): de hora a hora, a cada técnico de entidade, as alterações
+# feitas pelas empresas ou pela coordenação ao acompanhamento dos seus candidatos, com CC
+# à técnica Ana Coordenadora; as feitas pelos técnicos vão só para ela. Cada alteração é
+# avisada uma vez. Só depois do fecho do dia e até 11/01/2027; sem novidades, nada
+10 * * * *     fe2026  fe2026-correio acompanhamento >> /var/log/gec-fe2026/correio.log 2>&1

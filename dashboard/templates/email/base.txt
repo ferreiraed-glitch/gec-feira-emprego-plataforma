@@ -1,0 +1,12 @@
+XI FEIRA DE EMPREGO · Carnide 2026 · 13 Out · Lispolis
+======================================================
+
+{% block corpo %}{% endblock %}
+
+Com os melhores cumprimentos,
+Coordenação da XI Feira de Emprego de Carnide
+Grupo de Empregabilidade de Carnide (GEC)
+feira@exemplo.pt
+
+GEC · Lisboa REDEmprega · Lisboa BIP/ZIP
+Desenvolvimento: Cloudkeep.pt (https://cloudkeep.pt)

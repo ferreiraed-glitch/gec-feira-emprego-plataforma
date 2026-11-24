@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block largura %}estreito{% endblock %}
+{% block conteudo %}
+<section class="aviso-pagina">
+  <img class="banner" src="{{ url_for('static', filename='banner.jpg') }}" alt="XI Feira de Emprego · Carnide 2026 · Recrutamento · 13 de Outubro · Lispolis" width="1400" height="352">
+  <h1>{{ titulo }}</h1>
+  <p>{{ mensagem }}</p>
+</section>
+{% endblock %}

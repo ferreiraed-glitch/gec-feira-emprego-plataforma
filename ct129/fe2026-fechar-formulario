@@ -1,0 +1,9 @@
+#!/bin/sh
+# CT129 — fecha o formulário de candidaturas a 9 Out 2026 às 13:00 (fechar_formulario.py).
+# Instalado em /usr/local/bin/; o cron corre-o como fe2026 às 13:00 e às 13:05 de 9 Out.
+# Idempotente: antes da hora, ou com o formulário já fechado, não faz nada.
+umask 077
+export FE2026_ENV_FILE=/etc/gec-fe2026/formbricks.env
+export FE2026_R1_DIR=/var/lib/gec-fe2026/r1
+echo "── $(date '+%F %T')"
+exec /usr/bin/python3 /opt/gec-fe2026/fechar_formulario.py "$@"

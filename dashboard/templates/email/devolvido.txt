@@ -1,0 +1,16 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+Hoje às 18:00 enviámos a cada candidato um e-mail com o resultado das suas candidaturas à XI Feira de Emprego de Carnide e, quando há entrevista, a hora marcada. {{ 'Os e-mails destes candidatos que inscreveu voltaram devolvidos' if pessoas|length > 1 else 'O e-mail deste candidato que inscreveu voltou devolvido' }}: o endereço parece não existir ou a caixa está cheia.
+
+{% for p in pessoas %}
+{{ p.nome }} · e-mail que falhou: {{ p.falhados|join(', ') }}
+{% for i in p.itens %}  - {{ i.empresa }}: {% if i.classe == 'marcado' %}ENTREVISTA a 13 Out, às {{ i.hora }} (até às {{ i.fim }}){% elif i.classe == 'espera' %}lista de espera{% else %}não seguiu para entrevista{% endif %}
+{% endfor %}
+
+{% endfor %}
+Pode, por favor, passar-lhe{{ 's' if pessoas|length > 1 }} esta informação, de preferência por telefone? Se souber o e-mail certo, responda a esta mensagem com ele: passa a ser usado nos próximos avisos.
+
+A informação está também no seu dashboard e no ponto de situação que recebe às 18:00.
+{% endblock %}

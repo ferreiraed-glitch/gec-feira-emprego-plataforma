@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titulo %}Avaliação da Feira{% endblock %}
+{% block largura %}estreito{% endblock %}
+{# Avaliação da organização da Feira pelos parceiros (19 Out 2026): técnicos de
+   encaminhamento, de triagem e coordenação. Uma resposta por pessoa, que pode
+   ser revista com qualquer dos seus links. As 8 perguntas comuns e, conforme os
+   papéis da pessoa, os blocos da triagem e da coordenação. #}
+{% macro pergunta(k, rotulo, desc, escala_q, n) %}
+    <fieldset class="pergunta-av">
+      <legend>{{ n }}. {{ rotulo }}</legend>
+      <p class="desc-av">{{ desc }}</p>
+      <div class="notas-av cinco">
+        {% for v, nome in escala_q %}
+        <label title="{{ nome if v else na }}"{% if not v %} class="na-av"{% endif %}><input type="radio" name="{{ k }}" value="{{ v }}" required {{ 'checked' if f and f[k] is not none and f[k]|string == v|string }}><span>{{ v if v else 'N/A' }}</span><small>{{ nome if v else 'Não aplicável' }}</small></label>
+        {% endfor %}
+      </div>
+      {# Aparece (só com CSS) nas notas 1 e 2; opcional, para não levar a subir a nota (19 Out 2026) #}
+      <label class="obs-av obs-opcional">Gostaríamos de perceber porquê, para melhorarmos o que correu menos bem. Se puder, deixe-nos uma breve explicação (opcional).
+        <textarea name="obs:{{ k }}" rows="2" maxlength="1000">{{ obs.get(k, '') }}</textarea></label>
+    </fieldset>
+{% endmacro %}
+{% block conteudo %}
+{% if t.perfil == 'coordenador' %}<p class="migalhas"><a href="{{ url_for('avaliacao_feira_resultados') }}">← Resultados da avaliação pelos técnicos e coordenação</a></p>{% endif %}
+<div class="cabeca">
+  <h1>Avaliação da organização da Feira</h1>
+  <p class="suave">Como avalia os seguintes aspetos da organização da XI Feira de Emprego de Carnide? A sua opinião ajuda-nos a melhorar as próximas edições. Responda a cada aspeto numa escala de 1 (Muito mau) a 5 (Muito bom); se não tiver conhecimento suficiente sobre algum, escolha <b>N/A</b>. Obrigado pela colaboração!</p>
+</div>
+{% if ok %}<p class="ok">Avaliação guardada. Obrigado! Pode voltar a esta página para a rever.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+{% if por_responder and not erro %}<p class="aviso-av">Acrescentámos perguntas sobre {{ por_responder|map(attribute='titulo')|map('lower')|join(' e ') }}, depois de ter respondido. A sua resposta anterior está guardada: só falta completar {{ 'esse bloco' if por_responder|length == 1 else 'esses blocos' }}, mais abaixo.</p>
+{% elif a and not erro and not ok %}<p class="suave">Já respondeu a {{ para_local(a.criada_em) }}{% if a.alterado_em != a.criada_em %} (revista a {{ para_local(a.alterado_em) }}){% endif %}. Pode corrigir e guardar de novo.</p>{% endif %}
+
+<form method="post" class="form-avaliacao">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <p class="escala-legenda">{% for v, nome in escala %}<span><b>{{ v if v else 'N/A' }}</b> {{ nome if v else na }}</span>{% endfor %}</p>
+  <section class="caixa grupo-av">
+    <h2>Aspetos da organização</h2>
+    {% for k, rotulo, desc in perguntas %}{{ pergunta(k, rotulo, desc, escala, loop.index) }}{% endfor %}
+  </section>
+  {% for b in blocos %}
+  <section class="caixa grupo-av" id="bloco-{{ b.papel }}">
+    <h2>{{ b.titulo }}{% if b in por_responder %} <span class="novo-av">Novo</span>{% endif %}</h2>
+    <p class="desc-av">{{ b.intro }}</p>
+    {% for k, rotulo, desc, escala_q in b.perguntas %}{{ pergunta(k, rotulo, desc, escala_q, loop.index) }}{% endfor %}
+    {% set kt, rotulo_t, _dt = b.texto %}
+    <label class="texto-av"><span>{{ rotulo_t }} <span class="suave">(opcional)</span></span>
+      <textarea name="{{ kt }}" rows="3" maxlength="3000">{{ f[kt] or '' if f }}</textarea></label>
+  </section>
+  {% endfor %}
+  <section class="caixa grupo-av">
+    <h2>Em poucas palavras</h2>
+    {% for k, rotulo, desc, obrigatoria in textos %}
+    <label class="texto-av"><span>{{ rotulo }}{% if not obrigatoria %} <span class="suave">(opcional)</span>{% endif %}</span>
+      <small class="desc-av">{{ desc }}</small>
+      <textarea name="{{ k }}" rows="4" maxlength="3000"{{ ' required' if obrigatoria }}>{{ f[k] or '' if f }}</textarea></label>
+    {% endfor %}
+  </section>
+  <p class="ajuda">Resposta em nome de <b>{{ a.nome if a else t.nome }}</b>. Se também tem outro link do dashboard (por exemplo, de triagem e de entidade), a resposta é a mesma nos dois.</p>
+  <button type="submit" class="principal">{{ 'Guardar correcções' if a else 'Enviar avaliação' }}</button>
+</form>
+{% endblock %}

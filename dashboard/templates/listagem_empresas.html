@@ -1,0 +1,35 @@
+{% extends "impressao.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{# Uma folha por empresa: receção (por empresa e horário) ou agenda para os técnicos (6 Out 2026). #}
+{% block conteudo %}
+{% for folha in folhas %}{% set e = folha.e %}
+<table class="folha">
+  <thead>
+    <tr><th colspan="{{ 6 if tecnicos_col else 5 }}" class="cab-folha">
+      <img src="{{ url_for('static', filename='banner.jpg') }}" alt="XI Feira de Emprego · Carnide 2026 · 13 de Outubro · Lispolis">
+      <div><span class="cab-tipo">{{ titulo }}</span><span class="cab-empresa">{{ e.empresa }}</span>
+        <span class="cab-info">13 de Outubro · {{ e.hora_inicio or '?' }}–{{ e.hora_fim or '?' }} · entrevistas de {{ e.duracao_entrevista_min or '?' }} min · {{ folha.linhas|length }} candidato{{ 's' if folha.linhas|length != 1 }} · «Por validar» = ainda não validado, pode aparecer na Feira</span></div>
+    </th></tr>
+    <tr>
+      <th class="c-senha">Senha</th><th class="c-hora">Hora</th><th>Candidato/a</th><th class="c-tel">Telefone candidato/a</th>
+      {% if tecnicos_col %}<th>Técnico/a (entidade)</th><th class="c-tel">Telefone técnico/a</th>
+      {% else %}<th class="c-presenca">Presente</th>{% endif %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for l in folha.linhas %}{% set r = l.r %}
+    <tr class="{{ 'pv' if r.validacao == 'Por validar' else 'espera' if not r.horario_entrevista }}{{ ' tolerancia' if r.horario_entrevista and tolerancia(e, r.horario_entrevista) }}">
+      <td></td>
+      <td class="num">{{ l.hora }}</td>
+      <td><b>{{ r.cand_nome }}</b></td>
+      <td class="num">{{ r.cand_telefone }}</td>
+      {% if tecnicos_col %}<td>{{ r.tecnico_ent }}<br><span class="suave">{{ r.entidade }}</span></td><td class="num">{{ r.tecnico_ent_tel }}</td>
+      {% else %}<td class="c-presenca"><span class="quadrado"></span></td>{% endif %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vazio">Ainda não há candidaturas.</p>
+{% endfor %}
+{% endblock %}

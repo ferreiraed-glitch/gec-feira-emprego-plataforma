@@ -1,0 +1,16 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+O dashboard da XI Feira de Emprego de Carnide tem uma nova funcionalidade, no botão «Estatísticas» do topo da página, disponível em todos os perfis.
+
+Reúne, num só lugar, os números da Feira em dados agregados e anónimos (sem nomes, contactos nem comentários), para analisarmos esta edição e prepararmos a próxima:
+- candidaturas: inscritos, candidaturas por estado, número de empresas por candidato, habilitações, localidades e candidatos por entidade;
+- dia da Feira: comparências, ausências, inscrições no local e entrevistas realizadas;
+- depois da Feira: seguimento, novas entrevistas, selecionados e contratados, com o tipo de contrato;
+- avaliação da Feira pelas empresas e pelos parceiros, com gráficos por pergunta.
+{% if com_resumo %}
+No início da página encontra ainda um resumo dos comentários das perguntas abertas das avaliações: pontos positivos, pontos negativos, elogios e sugestões, com os números de preenchimento (quantas respostas preencheram alguma pergunta aberta e quantas não preencheram nenhuma). O resumo é anónimo, sem referência a quem respondeu.
+{% endif %}
+Os números atualizam-se sempre que abre a página. Aceda como habitualmente, pelo seu link pessoal. Se tiver alguma dificuldade, basta responder a este e-mail.
+{% endblock %}

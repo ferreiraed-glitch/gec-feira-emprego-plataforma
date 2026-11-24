@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{# Lembrete aos técnicos validadores que ainda não trataram nenhuma candidatura (8 Out 2026): fecho das
+   inscrições, número por triar e o link pessoal de triagem. #}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">Obrigado pela colaboração na XI Feira de Emprego de Carnide.</p>
+<p style="margin:0 0 12px;">Partilhamos uma nota sobre o calendário: as inscrições de candidatos <b>encerram amanhã, {{ fecho }}</b>. Até lá ainda podem entrar algumas candidaturas novas.</p>
+<p style="margin:0 0 12px;">Neste momento tem <b>{{ n }} candidatura{{ 's' if n != 1 }}</b>{% if empresa %} para {{ empresa }}{% endif %} a aguardar triagem no seu dashboard. A validação e a escolha do horário de entrevista feitas com alguma antecedência dão tempo aos candidatos para se prepararem e aos técnicos que os acompanham para os informar. Os candidatos são avisados por e-mail às 18:00.</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ link }}" style="display:inline-block;padding:12px 26px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:15px;">Abrir o dashboard de triagem</a>
+  </td>
+</tr></table>
+
+<p style="margin:0 0 12px;font-size:14px;"><b>O link é pessoal:</b> por favor, não o reencaminhe. Se precisar de alguma ajuda, ou se quiser combinar connosco outra forma de fazer a triagem, basta responder a este e-mail.</p>
+<p style="margin:0;font-size:13px;color:#4A6172;">Se o botão não funcionar, copie este endereço para o browser:<br><span style="word-break:break-all;">{{ link }}</span></p>
+{% endblock %}
+{% block nota_rodape %}Mensagem pessoal enviada pela coordenação da Feira de Emprego. Contém um link de acesso individual: não a reencaminhe.{% endblock %}

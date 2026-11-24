@@ -1,0 +1,12 @@
+#!/bin/sh
+# CT129 — R1, capacidade por empresa (desde 1 Out 2026; antes corria no CT127).
+# Corre aqui porque precisa da BD do dashboard: uma candidatura anulada à mão
+# liberta o lugar. Instalado em /usr/local/bin/; corre pelo cron como fe2026.
+# O flock evita duas execuções em simultâneo se uma se atrasar.
+umask 077
+export FE2026_ENV_FILE=/etc/gec-fe2026/formbricks.env
+export FE2026_DB=/var/lib/gec-fe2026/fe2026.db
+export FE2026_R1_DIR=/var/lib/gec-fe2026/r1
+echo "── $(date '+%F %T')"
+exec flock -n /var/lib/gec-fe2026/.r1.lock \
+    /usr/bin/python3 /opt/gec-fe2026/r1_capacidade.py "$@"

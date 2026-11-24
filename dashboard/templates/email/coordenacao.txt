@@ -1,0 +1,15 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+Foi-lhe criado um acesso de coordenação ao dashboard da XI Feira de Emprego de Carnide. Com ele pode consultar todas as candidaturas e o seu estado, as listagens, a receção, o acompanhamento dos candidatos depois da Feira e a avaliação do evento.
+
+O seu link pessoal:
+{{ link }}
+
+O link é pessoal. Dá acesso a dados pessoais dos candidatos e cada acesso fica registado em seu nome: por favor, não o reencaminhe nem o partilhe. Um colega que precise de acesso pede o seu próprio link à coordenação.
+
+É válido até {{ validade }}. No primeiro acesso o browser guarda a sessão; depois basta voltar a abrir o link. Se deixar de funcionar, aparece «Acesso não autorizado»: peça um novo.
+
+Segue em anexo o Manual dos dashboards. A parte da coordenação está nas páginas 4 a 12.
+{% endblock %}

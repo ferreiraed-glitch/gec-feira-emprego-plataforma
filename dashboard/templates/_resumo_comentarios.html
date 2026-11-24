@@ -1,0 +1,62 @@
+{# Resumo dos comentários livres das duas avaliações (síntese escrita a 4 Nov 2026, sobre as
+   respostas então recebidas). Anónimo: sem nomes de pessoas, de empresas nem de grupos.
+   Os números de preenchimento (txt) são calculados ao carregar a página. #}
+<h2>Comentários das avaliações: resumo</h2>
+<p class="suave">Síntese das perguntas abertas das duas avaliações (empresas e parceiros), sem referência a quem respondeu. Os números abaixo actualizam-se com as respostas; o texto é uma síntese das respostas recebidas até 4 de Novembro.</p>
+
+<div class="estat-grelha">
+  {% for titulo, t in (('Empresas', txt.emp), ('Parceiros (organização da Feira)', txt.org)) %}
+  <section class="caixa">
+    <h3>{{ titulo }}</h3>
+    <ul class="kpis">
+      <li><b>{{ t.n }}</b><span>respostas</span></li>
+      <li class="k-verde"><b>{{ t.alguma }}</b><span>com alguma pergunta aberta preenchida</span></li>
+      <li class="k-vinho"><b>{{ t.nenhuma }}</b><span>sem nenhuma preenchida</span></li>
+      <li class="k-azul"><b>{{ t.todas }}</b><span>com todas preenchidas</span></li>
+    </ul>
+    <p class="ajuda">Por pergunta:
+      {% for r, n in t.por_pergunta %}{{ r }}: <b>{{ n }}</b>{{ ' · ' if not loop.last }}{% endfor %}.
+      {% if t is sameas txt.emp %}A explicação de uma nota baixa conta como pergunta preenchida.{% else %}Respostas como «NA» ou «xx» não contam como preenchidas.{% endif %}</p>
+  </section>
+  {% endfor %}
+</div>
+
+<div class="estat-grelha">
+  <section class="caixa">
+    <h3>Pontos positivos</h3>
+    <ul>
+      <li><b>A plataforma</b> é o ponto mais citado, pelas duas partes e em quase todos os comentários dos parceiros: acompanhar o estado das candidaturas, triar mais depressa, receber o retorno de informação, aceder aos CV e extrair listagens. Os técnicos de triagem dizem que poupou muito tempo.</li>
+      <li><b>Organização e equipa:</b> boa preparação antes da Feira, equipa simpática, disponível e coordenada, com boa articulação entre parceiros e com as empresas.</li>
+      <li><b>Espaço:</b> sala iluminada e acolhedora, limpa e adequada.</li>
+      <li><b>Ambiente entre parceiros:</b> entreajuda, camaradagem e empenho que vai além das funções de cada um.</li>
+      <li><b>Candidatos:</b> uma empresa notou perfis mais ajustados às ofertas do que em edições anteriores.</li>
+    </ul>
+  </section>
+  <section class="caixa">
+    <h3>Pontos negativos</h3>
+    <ul>
+      <li><b>Poucas empresas e pouca diversidade de ofertas</b> (10 comentários de parceiros): faltam empresas do território e de áreas como as limpezas; algumas ofertas só valiam para o Multiusos; vários contratos eram curtos (reforço de Natal, 6 meses).</li>
+      <li><b>Adequação dos perfis às ofertas:</b> candidatos sem o perfil pedido, citado por uma empresa (que deu notas baixas em dois aspectos) e por parceiros; houve candidaturas anuladas por habilitações ou experiência desajustadas, e dificuldade em contactar alguns candidatos.</li>
+      <li><b>Dia da Feira:</b> burburinho que dificultou entrevistas em empresas contíguas, poucas cadeiras na sala de espera, tempos de espera, e afluência demasiado espaçada, com empresas minutos sem candidatos.</li>
+      <li><b>Não se realizou</b> a sessão de treino de entrevistas.</li>
+    </ul>
+  </section>
+  <section class="caixa">
+    <h3>Elogios</h3>
+    <ul>
+      <li>Parabéns generalizados à equipa organizadora e aos parceiros; a Feira é «uma boa prática a continuar».</li>
+      <li>Agradecimento a quem desenvolveu a plataforma e a foi melhorando a partir das sugestões recebidas.</li>
+      <li>A organização «reflecte o trabalho realizado ao longo do ano», com sinergia entre os parceiros.</li>
+    </ul>
+  </section>
+  <section class="caixa">
+    <h3>Sugestões</h3>
+    <ul>
+      <li><b>Empresas:</b> alargar e diversificar, com prioridade às do território e às de limpezas; dar peso à duração do contrato.</li>
+      <li><b>Triagem:</b> critérios claros para quando os requisitos são obrigatórios (anular ou inscrever noutra oferta); começar mais cedo; prazos e limites para novas candidaturas após vagas libertadas; alternativa quando o candidato não atende.</li>
+      <li><b>Plataforma:</b> e-mail automático ao candidato e ao técnico com hora e local da entrevista; receção directamente na plataforma, com presença e RGPD de imagem numa só lista.</li>
+      <li><b>Dia da Feira:</b> chamar os candidatos pela hora marcada e não pela ordem de chegada; 2 espaços na agenda à mesma hora quando a empresa tem 1 recrutador; mais cadeiras; atenuar o ruído; retomar o treino de entrevistas.</li>
+      <li><b>Candidatos e visibilidade:</b> propor a inscrição na plataforma de recrutamento de uma empresa antes da entrevista; recolher dois testemunhos em vídeo (uma pessoa integrada e um recrutador).</li>
+    </ul>
+  </section>
+</div>

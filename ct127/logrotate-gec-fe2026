@@ -1,0 +1,9 @@
+# /etc/logrotate.d/gec-fe2026 (CT127) — o R1 corre de minuto a minuto desde 25 Set 2026
+/var/log/gec-fe2026/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+}

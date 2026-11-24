@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Avaliação · {{ emp.empresa }}{% endblock %}
+{% block largura %}estreito{% endblock %}
+{# As respostas já dadas pela empresa (13 Out 2026): o link é o mesmo para
+   toda a equipa de RH, e cada pessoa responde à parte. #}
+{% block conteudo %}
+{% if t.perfil == 'coordenador' %}<p class="migalhas"><a href="{{ url_for('avaliacao') }}">← Avaliação de todas as empresas</a></p>{% endif %}
+<div class="cabeca">
+  <h1>Avaliação do evento · {{ emp.empresa }}</h1>
+  <p class="suave">Cada pessoa da empresa que participou na Feira pode deixar a sua avaliação. Obrigado pela colaboração!</p>
+</div>
+{% if ok %}<p class="ok">Avaliação guardada. Obrigado!</p>{% endif %}
+<p class="accoes"><a class="botao-principal" href="{{ url_for('avaliacao_responder', choice_id=emp.choice_id) }}">{{ '+ Nova avaliação (outra pessoa)' if respostas else 'Responder à avaliação' }}</a></p>
+{% if respostas %}
+<h2>Respostas já enviadas ({{ respostas|length }})</h2>
+<ul class="respostas-av">
+  {% for a in respostas %}
+  <li class="caixa">
+    <div><b>{{ a.respondido_por }}</b><br><span class="suave">Enviada a {{ para_local(a.criada_em) }}{% if a.alterado_em != a.criada_em %} · corrigida a {{ para_local(a.alterado_em) }}{% endif %} · avaliação global: {{ a['global'] }}</span></div>
+    <a class="botao-sec" href="{{ url_for('avaliacao_responder', choice_id=emp.choice_id, id_resposta=a.id) }}">Ver / corrigir</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.txt" %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+{% if p.entrevistas %}
+Boas notícias: a sua candidatura foi validada e tem entrevista{{ 's' if p.entrevistas|length > 1 }} de emprego marcada{{ 's' if p.entrevistas|length > 1 }} na XI Feira de Emprego de Carnide, na terça-feira, 13 de Outubro, na Lispolis – Pólo Tecnológico de Lisboa, em Carnide.
+
+Uma entrevista é a oportunidade de mostrar quem é e o que sabe fazer. Vale a pena preparar-se: alguns minutos de preparação fazem diferença na impressão que deixa.
+{% elif p.espera %}
+A sua candidatura à XI Feira de Emprego de Carnide (13 de Outubro, na Lispolis) foi validada e está em lista de espera para entrevista.
+{% else %}
+Obrigado pelo seu interesse na XI Feira de Emprego de Carnide. Informamos sobre o resultado da sua candidatura.
+{% endif %}
+
+{% for i in p.itens %}
+- {{ i.empresa }}{% if i.ofertas %} ({{ i.ofertas }}){% endif %}: {% if i.classe == 'marcado' %}ENTREVISTA a 13 Out, às {{ i.hora }} (até às {{ i.fim }}){% elif i.classe == 'espera' %}lista de espera{% else %}não seguiu para entrevista{% endif %}
+
+{% endfor %}
+{% if p.espera %}
+
+Lista de espera quer dizer que, se abrir um horário (por exemplo, por alguém não poder comparecer), é contactado/a pelo/a técnico/a que fez a sua inscrição.
+{% endif %}
+{% if p.anuladas %}
+
+{% if p.anuladas|length == p.itens|length %}Desta vez a sua candidatura não seguiu para entrevista.{% else %}A candidatura a {{ p.anuladas|map(attribute='empresa')|join(', ') }} não seguiu para entrevista.{% endif %} Isso não diz nada sobre o seu valor: depende dos requisitos de cada oferta e do número de lugares. Fale com o/a técnico/a que o/a acompanha sobre outras oportunidades.
+{% endif %}
+{% if p.entrevistas %}
+
+NO DIA DA ENTREVISTA
+- Chegue 15 minutos antes da hora marcada, para se registar na receção com calma.
+- Leve o documento de identificação e algumas cópias do seu CV.
+- Prepare-se: leia a oferta e saiba o que a empresa faz. Pense em dois ou três exemplos concretos do que já fez e que mostrem que é a pessoa certa.
+- Vista-se de forma cuidada e adequada à função.
+- Ao entrar, cumprimente, olhe nos olhos e sorria. Ouça a pergunta até ao fim e responda com calma e de forma clara.
+- Silencie o telemóvel. Tenha uma ou duas perguntas para fazer no fim.
+- Seja simpático/a com todas as pessoas que encontrar: a impressão começa antes da entrevista.
+
+Artigo do GEC «Entrevistas – Comunicação e Impacto»: {{ artigo }}
+
+A Feira decorre só de manhã e o acesso é reservado a candidatos inscritos: por favor, venha sem acompanhantes.
+{% endif %}
+
+Se tiver dúvidas ou não puder comparecer, avise o/a técnico/a que fez a sua inscrição{% if p.tecnico %} ({{ p.tecnico }}{% if p.entidade %}, {{ p.entidade }}{% endif %}){% endif %} ou responda a este e-mail.{% if p.entrevistas %} Desejamos-lhe boa sorte!{% endif %}
+{% endblock %}

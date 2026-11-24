@@ -1,0 +1,13 @@
+#!/bin/sh
+# CT129 — cópia consistente da BD (sqlite3 .backup funciona com a BD em uso).
+# Guarda as últimas 28 cópias (7 dias a 4 por dia). Protege contra erro humano
+# ou corrupção, não contra a perda do CT: o host não tem backups activos.
+set -eu
+umask 077
+DB=/var/lib/gec-fe2026/fe2026.db
+DIR=/var/lib/gec-fe2026/backups
+[ -f "$DB" ] || exit 0
+OUT="$DIR/fe2026-$(date +%Y%m%d-%H%M).db"
+sqlite3 "$DB" ".backup '$OUT'"
+ls -1t "$DIR"/fe2026-*.db | tail -n +29 | xargs -r rm -f
+echo "$(date '+%F %T') $OUT"

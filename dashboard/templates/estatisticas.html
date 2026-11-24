@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block titulo %}Estatísticas{% endblock %}
+{# Números da Feira para a análise e a preparação da edição seguinte (4 Nov 2026).
+   Aberta a todos os perfis porque só tem dados agregados: sem nomes, contactos nem
+   textos livres, e os grupos com poucas pessoas juntam-se em «Outros». #}
+{% block conteudo %}
+{% set c = d.estados %}
+<div class="cabeca">
+  <h1>Estatísticas da Feira</h1>
+  <p class="suave">Números agregados e anónimos, para analisar esta edição e preparar a próxima. Não há nomes de pessoas, contactos nem comentários; os grupos com menos de 3 pessoas aparecem juntos em «Outros». Actualiza ao recarregar a página.</p>
+</div>
+
+{% if ver_comentarios %}{% include "_resumo_comentarios.html" %}{% endif %}
+
+<h2>1. Candidaturas</h2>
+<ul class="kpis">
+  <li><b>{{ d.n_candidatos }}</b><span>candidatos inscritos</span></li>
+  <li><b>{{ d.n_candidaturas }}</b><span>candidaturas a empresas</span></li>
+  <li class="k-verde"><b>{{ c.get('Validado', 0) }}</b><span>validadas</span></li>
+  <li class="k-vinho"><b>{{ c.get('Anulado', 0) }}</b><span>anuladas</span></li>
+  <li class="k-azul"><b>{{ c.get('Por validar', 0) }}</b><span>por validar</span></li>
+  <li><b>{{ ((d.n_candidaturas / d.n_candidatos)|round(1)|string|replace('.', ',')) if d.n_candidatos else '—' }}</b><span>empresas por candidato</span></li>
+</ul>
+<div class="estat-grelha">
+  {% set titulo = 'Candidatos por n.º de empresas escolhidas' %}{% set linhas = d.por_n_empresas %}{% include "_barras_simples.html" %}
+  {% set titulo = 'Candidatos por entidade que inscreveu' %}{% set linhas = d.por_entidade %}{% include "_barras_simples.html" %}
+  {% set titulo = 'Habilitações' %}{% set linhas = d.habilitacoes %}{% include "_barras_simples.html" %}
+  {% set titulo = 'Localidade' %}{% set linhas = d.localidades %}{% include "_barras_simples.html" %}
+</div>
+{% if ver_empresas %}
+<h3>Por empresa</h3>
+<div class="tabela-rola">
+<table class="lista compacta">
+  <thead><tr><th>Empresa</th><th class="dir">Capacidade</th><th class="dir">Validadas</th><th class="dir">Por validar</th><th class="dir">Anuladas</th><th class="dir">Total</th></tr></thead>
+  <tbody>
+  {% for e in d.por_empresa %}
+  <tr><td>{{ e.empresa }}</td><td class="dir num">{{ e.cap or '—' }}</td><td class="dir num"><b>{{ e.validadas }}</b></td><td class="dir num">{{ e.por_validar or '' }}</td><td class="dir num">{{ e.anuladas or '' }}</td><td class="dir num">{{ e.total }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+<h2>2. Dia da Feira</h2>
+{% set analise = d.rececao %}
+{% if analise.n_presentes or analise.n_avulsos or analise.n_ausentes %}
+{% if ver_empresas %}{% include "_rececao_graficos.html" %}{% else %}
+<ul class="kpis">
+  <li><b>{{ analise.inscritos }}</b><span>inscritos validados</span></li>
+  <li class="k-verde"><b>{{ analise.n_presentes }}</b><span>compareceram ({{ analise.pct_presentes }} %)</span></li>
+  <li class="k-vinho"><b>{{ analise.n_ausentes }}</b><span>não compareceram</span></li>
+  <li class="k-azul"><b>{{ analise.n_avulsos }}</b><span>inscritos no dia</span></li>
+  <li><b>{{ analise.feitas }}</b><span>entrevistas feitas</span></li>
+</ul>
+{% endif %}
+{% else %}<p class="vazio">Sem registos de receção.</p>{% endif %}
+
+<h2>3. Depois da Feira (seguimento)</h2>
+{% set s = d.seguimento %}
+<ul class="kpis">
+  <li><b>{{ s.validadas }}</b><span>candidaturas validadas</span></li>
+  <li><b>{{ s.entrevistados }}</b><span>com seguimento preenchido</span></li>
+  <li class="k-azul"><b>{{ s.nova_entrevista }}</b><span>com nova entrevista</span></li>
+  <li class="k-azul"><b>{{ s.selecionados }}</b><span>seleccionados</span></li>
+  <li class="k-verde"><b>{{ s.contratados }}</b><span>contratados</span></li>
+</ul>
+<div class="estat-grelha">
+  {% set titulo = 'Tipo de contrato dos contratados' %}{% set linhas = d.contratos %}{% include "_barras_simples.html" %}
+</div>
+<p class="ajuda">O seguimento depende do preenchimento pelas empresas e pelos técnicos: os números só crescem à medida que o fazem.</p>
+
+<h2>4. Avaliação pelas empresas</h2>
+{% set a = d.av_emp %}
+<ul class="kpis">
+  <li><b>{{ a.n }}</b><span>respostas de {{ a.n_empresas }} empresas</span></li>
+  <li class="k-verde"><b>{{ ('%.1f'|format(a.resumo.media))|replace('.', ',') if a.resumo.media is not none else '—' }}</b><span>avaliação global (de 4)</span></li>
+  <li class="k-azul"><b>{{ a.resumo.pct_alta }} %</b><span>deram 3 ou 4 no global</span></li>
+</ul>
+{% set itens = a.itens %}{% set niveis = escala %}{% set titulo = 'Avaliação das empresas' %}
+{% include "_grafico_notas.html" %}
+
+<h2>5. Avaliação da organização pelos parceiros</h2>
+{% set a = d.av_org %}
+<ul class="kpis">
+  <li><b>{{ a.n }}</b><span>respostas</span></li>
+  {% for nome, n in a.grupos %}<li><b>{{ n }}</b><span>{{ nome|lower }}</span></li>{% endfor %}
+  <li class="k-verde"><b>{{ ('%.1f'|format(a.resumo.media))|replace('.', ',') if a.resumo.media is not none else '—' }}</b><span>avaliação global (de 5)</span></li>
+  <li class="k-azul"><b>{{ a.resumo.pct_alta }} %</b><span>deram 4 ou 5 no global</span></li>
+</ul>
+{% set itens = a.itens %}{% set niveis = escala_feira %}{% set titulo = 'Avaliação da organização' %}
+{% include "_grafico_notas.html" %}
+<p class="ajuda">As escalas das duas avaliações são diferentes (1 a 4 nas empresas, 1 a 5 nos parceiros) e não se comparam directamente. As médias não contam os N/A.</p>
+{% endblock %}

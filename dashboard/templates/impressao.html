@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block titulo %}{% endblock %} · Feira de Emprego 2026</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='impressao.css') }}">
+</head>
+<body class="impressao">
+<div class="barra-impressao nao-imprimir">
+  {% block voltar %}<a href="{{ url_for('lista') }}">← Candidaturas</a>{% endblock %}
+  <span class="suave">Gerada a {{ gerada.strftime('%d/%m/%Y às %H:%M') }} · A4 horizontal{% if pendentes %} · <b class="aviso">inclui {{ pendentes }} candidatura{{ 's' if pendentes != 1 }} ainda por validar, assinalada{{ 's' if pendentes != 1 }} «Por validar»</b>{% endif %}</span>
+  <button type="button" class="principal" data-imprimir>Imprimir / guardar PDF</button>
+</div>
+{% block conteudo %}{% endblock %}
+<p class="credito-impressao">Desenvolvimento: <b>Cloudkeep<span>.pt</span></b></p>
+<script src="{{ url_for('static', filename='imprimir.js') }}"></script>
+</body>
+</html>

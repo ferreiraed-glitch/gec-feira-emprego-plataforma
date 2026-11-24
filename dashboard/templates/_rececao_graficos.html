@@ -1,0 +1,65 @@
+{# Gráficos do dia na receção (14 Out 2026), em SVG gerado no servidor: a política de
+   segurança não deixa JavaScript nem estilos em linha, e assim servem também no PDF.
+   Usado em rececao.html e rececao_relatorio.html. Recebe `analise` (analise_rececao). #}
+{% set a = analise %}
+{% set total_dia = a.n_presentes + a.n_ausentes + a.n_avulsos %}
+<div class="graficos">
+  <ul class="kpis">
+    <li><b>{{ a.inscritos }}</b><span>inscritos validados</span></li>
+    <li class="k-verde"><b>{{ a.n_presentes }}</b><span>compareceram ({{ a.pct_presentes }} %)</span></li>
+    <li class="k-vinho"><b>{{ a.n_ausentes }}</b><span>não compareceram</span></li>
+    <li class="k-azul"><b>{{ a.n_avulsos }}</b><span>inscritos no dia</span></li>
+    <li><b>{{ a.feitas }}</b><span>entrevistas feitas{% if a.extra %} ({{ a.extra }} extra){% endif %}</span></li>
+    <li><b>{{ a.media|string|replace('.', ',') }}</b><span>entrevistas por presente</span></li>
+  </ul>
+
+  <figure class="grafico g-anel">
+    <figcaption>Inscritos vs. ausentes</figcaption>
+    <svg viewBox="0 0 42 42" role="img" aria-label="{{ a.n_presentes }} compareceram, {{ a.n_ausentes }} não compareceram, {{ a.n_avulsos }} inscritos no dia">
+      <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#E3ECF0" stroke-width="6"/>
+      {% if total_dia %}
+      {% set p1 = 100 * a.n_presentes / total_dia %}{% set p2 = 100 * a.n_avulsos / total_dia %}{% set p3 = 100 * a.n_ausentes / total_dia %}
+      <g transform="rotate(-90 21 21)" fill="none" stroke-width="6">
+        {% if p1 %}<circle cx="21" cy="21" r="15.9155" stroke="#287A45" stroke-dasharray="{{ '%.2f'|format(p1) }} {{ '%.2f'|format(100 - p1) }}" stroke-dashoffset="0"/>{% endif %}
+        {% if p2 %}<circle cx="21" cy="21" r="15.9155" stroke="#0B5E8E" stroke-dasharray="{{ '%.2f'|format(p2) }} {{ '%.2f'|format(100 - p2) }}" stroke-dashoffset="-{{ '%.2f'|format(p1) }}"/>{% endif %}
+        {% if p3 %}<circle cx="21" cy="21" r="15.9155" stroke="#C23A62" stroke-dasharray="{{ '%.2f'|format(p3) }} {{ '%.2f'|format(100 - p3) }}" stroke-dashoffset="-{{ '%.2f'|format(p1 + p2) }}"/>{% endif %}
+      </g>
+      {% endif %}
+      <text x="21" y="21.5" text-anchor="middle" font-size="7" font-weight="800" fill="#0E2A3B">{{ total_dia }}</text>
+      <text x="21" y="26.5" text-anchor="middle" font-size="2.6" fill="#4A6172">pessoas</text>
+    </svg>
+    <ul class="legenda">
+      <li><i class="c-verde"></i>Compareceram (inscritos): <b>{{ a.n_presentes }}</b></li>
+      <li><i class="c-azul"></i>Inscritos no dia: <b>{{ a.n_avulsos }}</b></li>
+      <li><i class="c-vinho"></i>Não compareceram: <b>{{ a.n_ausentes }}</b></li>
+    </ul>
+  </figure>
+
+  <figure class="grafico g-barras">
+    <figcaption>Entrevistas por empresa</figcaption>
+    {% set linhas = a.por_empresa %}
+    {% set alt = 7 %}
+    <svg viewBox="0 0 150 {{ 4 + linhas|length * alt }}" role="img" aria-label="Entrevistas por empresa: feitas, extra, não feitas e faltas">
+      {% for x in linhas %}
+      {% set y = 2 + loop.index0 * alt %}
+      {% set esc = 70 / a.max_empresa %}
+      <text x="0" y="{{ y + 4.2 }}" font-size="3.2" fill="#0E2A3B">{{ x.empresa }}</text>
+      {% set o = namespace(x=52) %}
+      {% for chave, cor in (('feitas', '#287A45'), ('extra', '#0B5E8E'), ('nao_feitas', '#B24A18'), ('faltas', '#C23A62')) %}
+        {% if x[chave] %}
+        <rect x="{{ '%.2f'|format(o.x) }}" y="{{ y }}" width="{{ '%.2f'|format(x[chave] * esc) }}" height="5" fill="{{ cor }}"/>
+        {% if x[chave] * esc > 4 %}<text x="{{ '%.2f'|format(o.x + x[chave] * esc / 2) }}" y="{{ y + 3.6 }}" text-anchor="middle" font-size="3" font-weight="700" fill="#fff">{{ x[chave] }}</text>{% endif %}
+        {% set o.x = o.x + x[chave] * esc %}
+        {% endif %}
+      {% endfor %}
+      <text x="{{ '%.2f'|format(o.x + 1.5) }}" y="{{ y + 4 }}" font-size="3" fill="#4A6172">{{ x.total }}</text>
+      {% endfor %}
+    </svg>
+    <ul class="legenda">
+      <li><i class="c-verde"></i>Feitas</li>
+      <li><i class="c-azul"></i>Extra (feitas)</li>
+      <li><i class="c-laranja"></i>Presente, não feitas</li>
+      <li><i class="c-vinho"></i>Falta (não compareceu)</li>
+    </ul>
+  </figure>
+</div>

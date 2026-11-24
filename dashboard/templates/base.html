@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block titulo %}Candidaturas{% endblock %} · Feira de Emprego 2026</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="/"><img src="{{ url_for('static', filename='gec-simbolo.png') }}" alt="" width="28" height="32"><span><b>XI</b> Feira de Emprego <small>Carnide 2026 · 13 Out · Lispolis</small></span></a>
+    {% if t %}
+    <nav>
+      {# Secções como botões de cor própria: amarelo = trabalho principal, azul-claro = seguimento; o ecrã actual fica preenchido #}
+      {% set ep = request.endpoint if request else '' %}{% set em_seg = ep in ('seguimento', 'seguimento_empresa', 'seguimento_entidade') %}
+      {% if t.perfil not in ('empresa', 'rececao') %}<a class="nav-sec amarelo" href="{{ url_for('lista') }}"{% if not em_seg and ep not in ('rececao', 'rececao_fecho', 'avaliacao', 'avaliacao_empresa', 'avaliacao_responder', 'avaliacao_feira', 'avaliacao_feira_resultados', 'estatisticas') %} aria-current="page"{% endif %}>Candidaturas</a>{% endif %}
+      {% if t.perfil == 'rececao' %}<a class="nav-sec amarelo" href="{{ url_for('rececao') }}"{% if ep == 'rececao' %} aria-current="page"{% endif %}>Receção</a>{% endif %}
+      {% if t.perfil == 'empresa' %}<a class="nav-sec amarelo" href="/agenda/{{ empresa_choice }}"{% if ep == 'agenda_empresa' %} aria-current="page"{% endif %}>Entrevistas</a>{% endif %}
+      {% if t.perfil in ('empresa', 'coordenador', 'entidade') %}<a class="nav-sec azul" href="{{ url_for('seguimento') }}"{% if em_seg %} aria-current="page"{% endif %}>Acompanhamento</a>{% endif %}
+      {% set em_av_emp = ep in ('avaliacao', 'avaliacao_empresa', 'avaliacao_responder') %}{% set em_av_org = ep in ('avaliacao_feira', 'avaliacao_feira_resultados') %}
+      {% if t.perfil == 'empresa' %}<a class="nav-sec azul" href="{{ url_for('avaliacao') }}"{% if em_av_emp %} aria-current="page"{% endif %}>Avaliação</a>{% endif %}
+      {# Coordenação (19 Out 2026): as duas avaliações lado a lado, nenhuma dentro da outra #}
+      {% if t.perfil == 'coordenador' %}<a class="nav-sec azul" href="{{ url_for('avaliacao') }}"{% if em_av_emp %} aria-current="page"{% endif %}>Avaliação · Empresas</a>
+      <a class="nav-sec azul" href="{{ url_for('avaliacao_feira_resultados') }}"{% if em_av_org %} aria-current="page"{% endif %}>Avaliação · Técnicos e coordenação</a>{% endif %}
+      {# Avaliação da organização pelos técnicos (19 Out 2026) #}
+      {% if t.perfil in ('tecnico', 'entidade') %}<a class="nav-sec azul" href="{{ url_for('avaliacao_feira') }}"{% if em_av_org %} aria-current="page"{% endif %}>Avaliação</a>{% endif %}
+      {% if t.perfil == 'coordenador' %}<a class="nav-sec branco" href="{{ url_for('exportar') }}">Exportar CSV</a>{% endif %}
+      <a class="nav-sec branco" href="{{ url_for('estatisticas') }}"{% if ep == 'estatisticas' %} aria-current="page"{% endif %}>Estatísticas</a>
+      <span class="sessao"><span class="quem">{{ t.nome }} · {{ nomes_perfis[t.perfil] }}</span>
+      <a href="{{ url_for('saida') }}">Sair</a></span>
+    </nav>
+    {% endif %}
+  </div>
+</header>
+{% if demo %}<p class="faixa-demo">Demonstração para formação · dados fictícios · as alterações feitas aqui não contam</p>{% endif %}
+<main class="{% block largura %}largo{% endblock %}">
+{% block conteudo %}{% endblock %}
+</main>
+<footer class="rodape">
+  <div class="rodape-in">
+    <div class="logos">
+      <span class="gec"><img src="{{ url_for('static', filename='gec-simbolo.png') }}" alt="" width="35" height="40"><span>Grupo de Empregabilidade<br>de Carnide</span></span>
+      <img src="{{ url_for('static', filename='redemprega.png') }}" alt="Lisboa · REDEmprega" width="150" height="56">
+      <img src="{{ url_for('static', filename='lisboa-bipzip.png') }}" alt="Lisboa Câmara Municipal · BIP/ZIP — Bairros e Zonas de Intervenção Prioritária de Lisboa" width="149" height="56">
+    </div>
+    <p>Dados pessoais tratados pelo GEC para a Feira de Emprego 2026. Cada acesso fica registado.
+    {% if t and t.perfil == 'empresa' %} Acesso válido até {{ para_local(t.expira_em, '%d/%m/%Y') }} (os CV, até {{ cv_ate }}); a partir da partilha, a empresa é responsável pelo tratamento subsequente destes dados.{% endif %}</p>
+    {# Empresas e técnicos das entidades (14 Out 2026): o crédito leva link para o site #}
+    <p class="credito">Desenvolvimento: {% if t and t.perfil in ('empresa', 'entidade') %}<a href="https://cloudkeep.pt" target="_blank" rel="noopener"><b>Cloudkeep<span>.pt</span></b></a>{% else %}<b>Cloudkeep<span>.pt</span></b>{% endif %}</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,19 @@
+#!/bin/sh
+# CT129 — e-mails da Feira (7 Out 2026), de feira@exemplo.pt; ver dashboard/correio.py.
+# Instalado em /usr/local/bin/. O cron corre-o como fe2026 (ver cron-gec-fe2026).
+# Os links do ficheiro vão pela entrada padrão e não ficam no CT129:
+#   ssh jfc-proxmox 'pct exec 129 -- /usr/local/bin/fe2026-correio links --simular' < ~/.config/jfc/fe2026-links-entidades.txt
+# Como root, passa a fe2026 (o mail.env é root:fe2026 640).
+umask 077
+set -a
+. /etc/gec-fe2026/dashboard.env
+set +a
+export FE2026_MAIL_ENV=/etc/gec-fe2026/mail.env
+cd /opt/gec-fe2026/dashboard
+if [ "$(id -u)" = 0 ]; then
+    exec /usr/sbin/runuser -u fe2026 -- env FE2026_DB="$FE2026_DB" FE2026_BASE_URL="$FE2026_BASE_URL" \
+        FE2026_MAIL_ENV="$FE2026_MAIL_ENV" /usr/bin/python3 correio.py "$@"
+fi
+echo "── $(date '+%F %T') $*"
+# -w: o envio das 18:00 e o dos links novos coincidem; o segundo espera pelo primeiro
+exec flock -w 1800 /var/lib/gec-fe2026/.correio.lock /usr/bin/python3 correio.py "$@"

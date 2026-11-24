@@ -1,0 +1,9 @@
+#!/bin/sh
+# CT129 — gerir os links de acesso ao dashboard (ver dashboard/tokens.py).
+# Uso (como root): fe2026-tokens listar | criar ... | criar-empresas | revogar <prefixo>
+set -a
+. /etc/gec-fe2026/dashboard.env
+set +a
+cd /opt/gec-fe2026/dashboard
+exec /usr/sbin/runuser -u fe2026 -- env FE2026_DB="$FE2026_DB" FE2026_BASE_URL="$FE2026_BASE_URL" \
+    /usr/bin/python3 tokens.py "$@"

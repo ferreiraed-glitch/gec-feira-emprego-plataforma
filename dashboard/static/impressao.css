@@ -1,0 +1,73 @@
+/* Listagens para o dia da Feira (6 Out 2026): A4 horizontal, banner e título
+   no cabeçalho de cada página (o <thead> repete-se na impressão). */
+@page { size: A4 landscape; margin: 9mm 10mm; }
+
+body.impressao { background: #fff; display: block; padding: 0 16px 2rem; }
+.barra-impressao { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; align-items: center; justify-content: space-between;
+  max-width: 1280px; margin: 0 auto 1rem; padding: .75rem 0; border-bottom: 1px solid var(--rule); }
+.barra-impressao .aviso { color: var(--vinho); }
+
+table.folha { width: 100%; max-width: 1280px; margin: 0 auto 2rem; border-collapse: collapse; font-size: 10.5pt; }
+table.folha + table.folha { break-before: page; }
+.folha th, .folha td { border: 1px solid #555; padding: 4px 6px; text-align: left; vertical-align: middle; }
+.folha thead tr:last-child th { background: #0E2A3B; color: #fff; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .04em;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.folha tbody tr { break-inside: avoid; }
+.folha tbody tr:nth-child(even) td { background: #F4F8FA; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.folha tr.espera td { color: #0B4A70; }
+.folha tr.pv td.num:nth-child(2) { color: #B24A18; font-weight: 700; }
+.folha tr.pv td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.folha tr.tolerancia td.num:nth-child(2) { color: #7A3E00; font-weight: 700; }
+
+.cab-folha { border: 0 !important; padding: 0 0 8px !important; background: #fff !important; }
+.cab-folha img { height: 24mm; width: auto; vertical-align: middle; margin-right: 14px; }
+.cab-folha div { display: inline-block; vertical-align: middle; }
+.cab-folha span { display: block; text-transform: none; letter-spacing: 0; }
+.cab-tipo { font-size: 10pt; font-weight: 600; color: #4A6172; }
+.cab-empresa { font-size: 18pt; font-weight: 800; color: #0E2A3B; line-height: 1.15; }
+.cab-info { font-size: 9pt; font-weight: 400; color: #4A6172; }
+
+.c-senha { width: 13mm; }
+.c-hora { width: 18mm; }
+.c-n { width: 10mm; }
+.c-tel { width: 34mm; }
+.c-presenca { width: 18mm; text-align: center !important; }
+.quadrado { display: inline-block; width: 4.5mm; height: 4.5mm; border: 1.2px solid #333; }
+.hora-ent { font-weight: 700; font-variant-numeric: tabular-nums; }
+.hora-ent.espera { font-weight: 600; color: #0B4A70; }
+.hora-ent.pv { font-weight: 700; color: #B24A18; }
+.rececao td { font-size: 9.5pt; }
+.credito-impressao { max-width: 1280px; margin: 0 auto; text-align: center; font-size: 8pt; color: #4A6172; }
+.credito-impressao b { color: #0E2A3B; }
+.credito-impressao b span { font-weight: 400; color: #1F8DA6; }
+
+@media print {
+  .nao-imprimir { display: none !important; }
+  body.impressao { padding: 0; }
+  table.folha { margin: 0; max-width: none; }
+}
+@media (max-width: 700px) {
+  .cab-folha img { height: auto; width: 100%; margin: 0 0 6px; }
+  table.folha { display: block; overflow-x: auto; font-size: 9pt; }
+}
+
+/* Relatório do dia da receção (14 Out 2026): uma só tabela, para o banner (thead) e o
+   rodapé (tfoot) se repetirem em cada página; as três secções são linhas de título. */
+.relatorio .sem-borda td { border: 0; padding: 0 0 6px; background: #fff !important; }
+.relatorio tr.sec-rel th { background: #FFC629 !important; color: #0E2A3B; font-size: 11.5pt; text-transform: none; letter-spacing: 0;
+  border: 1px solid #555; padding: 5px 8px; break-after: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.relatorio tr.sec-rel small { font-weight: 400; font-size: 8.5pt; }
+.relatorio tr.cols-rel th { background: #0E2A3B; color: #fff; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .04em;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.relatorio td div + div { margin-top: 2px; }
+.vazio-rel { font-style: italic; color: #4A6172; }
+.rodape-folha { border: 0 !important; border-top: 1px solid #555 !important; font-size: 8pt; color: #4A6172; text-align: center !important; padding-top: 3px !important; }
+.ok-rel { color: #1E5C34; } .ko-rel { color: #8A1F3F; }
+.flag-rel { font-size: 7.5pt; font-weight: 700; background: #0B5E8E; color: #fff; padding: 0 4px; border-radius: 3px; text-transform: uppercase;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.relatorio .graficos { font-size: 9pt; grid-template-columns: 70mm 1fr; break-inside: avoid; }
+.relatorio .kpis li { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.relatorio .kpis b { font-size: 16pt; }
+.relatorio svg rect, .relatorio svg circle, .relatorio .legenda i { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.relatorio .g-anel svg { max-width: 38mm; }
+.relatorio .g-barras svg { max-height: 80mm; }

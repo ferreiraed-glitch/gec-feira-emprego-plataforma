@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block titulo %}Agenda · {{ emp.empresa }}{% endblock %}
+{% block conteudo %}
+{% set rh = t.perfil == 'empresa' %}
+{% if not rh %}<p class="migalhas"><a href="{{ url_for('lista') }}">← Candidaturas</a></p>{% endif %}
+<div class="cabeca">
+  <h1>{% if rh %}Candidatos a entrevistar{% else %}Agenda{% endif %} · {{ emp.empresa }}</h1>
+  <p class="suave">13 de Outubro · {{ emp.hora_inicio or '?' }}–{{ emp.hora_fim or '?' }} · entrevistas de {{ emp.duracao_entrevista_min or '?' }} min · {{ lugares }} entrevistador{{ 'es' if lugares != 1 }} em simultâneo{% set ntol = grelha|selectattr('tolerancia')|list|length %}{% if ntol %} · <span class="nota-tol">{{ ntol }} horário{{ 's' if ntol != 1 }} de tolerância depois das {{ emp.hora_fim }}</span>{% endif %}</p>
+</div>
+
+{% if empresas %}
+<p class="agendas">{% for e in empresas %}<a href="{{ url_for('agenda_empresa', choice_id=e.choice_id) }}" {{ 'aria-current=page' if e.choice_id == emp.choice_id }}>{{ e.empresa }}</a>{% endfor %}</p>
+{% endif %}
+
+{% if rh %}<p class="ajuda">{% if cv_disponivel %}Os CV ficam disponíveis até {{ cv_ate }}, uma semana depois da Feira.{% else %}Os CV estiveram disponíveis até {{ cv_ate }}, uma semana depois da Feira.{% endif %}
+  Depois das entrevistas, registe o acompanhamento de cada candidato em <a href="{{ url_for('seguimento') }}">Acompanhamento</a> (até {{ para_local(t.expira_em, '%d/%m/%Y') }}).</p>{% endif %}
+{% set ocupados = grelha|selectattr('marcados')|list|length %}
+<p class="suave">{{ ocupados }} de {{ grelha|length }} horários com entrevistas · {{ espera|length }} em lista de espera</p>
+
+<div class="tabela-rola">
+<table class="lista agenda">
+  <thead><tr><th>Hora</th><th>Candidato/a</th>{% if rh %}<th>Contactos</th><th>Ofertas</th><th>{% if cv_disponivel %}CV{% endif %}</th>{% else %}<th>Ofertas</th><th>Técnico/a</th>{% endif %}</tr></thead>
+  <tbody>
+  {% for s in grelha %}
+    {% if s.marcados %}
+      {% for m in s.marcados %}{% set r = m.r %}
+      <tr{{ ' class=tolerancia' if s.tolerancia }}>
+        {% if loop.first %}<td class="num hora" rowspan="{{ s.marcados|length }}">{{ s.horario }}{% if s.tolerancia %}<br><span class="nota-tol">tolerância</span>{% endif %}</td>{% endif %}
+        {% if m.visivel %}
+          <td><b>{{ r.cand_nome }}</b>{% if rh %}<br><span class="suave">{{ r.cand_localidade }} · {{ r.cand_habilitacoes }}</span>{% if rh_docs %}<br><span class="suave num">NIF {{ r.cand_nif }} · {{ r.cand_tipo_doc }} {{ r.cand_num_doc }}</span>{% endif %}{% endif %}</td>
+          {% if rh %}<td>{{ r.cand_telefone }}<br><span class="suave">{{ r.cand_email }}</span></td>{% endif %}
+          <td class="suave">{{ r.ofertas_seleccionadas or '—' }}</td>
+          {% if rh %}<td>{% if r.cv_url and cv_disponivel %}<a class="botao-sec" href="{{ url_for('ver_cv', id_submissao=r.id_submissao, choice_id=r.choice_id) }}" target="_blank" rel="noopener">CV</a>{% endif %}</td>
+          {% else %}<td>{{ r.id_tecnico or '—' }}{% if t.perfil == 'coordenador' or r.id_tecnico == t.id_tecnico %} · <a href="{{ url_for('detalhe', id_submissao=r.id_submissao, choice_id=r.choice_id) }}">Abrir</a>{% endif %}</td>{% endif %}
+        {% else %}
+          <td colspan="3" class="suave">Ocupado (candidatura de outro técnico)</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr class="livre{{ ' tolerancia' if s.tolerancia }}"><td class="num hora">{{ s.horario }}{% if s.tolerancia %}<br><span class="nota-tol">tolerância</span>{% endif %}</td><td colspan="{{ 4 if rh else 3 }}" class="suave">Livre{% if s.tolerancia %} · horário de tolerância, depois das {{ emp.hora_fim }}{% endif %}</td></tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<section class="caixa">
+  <h2>Lista de espera</h2>
+  <p class="ajuda">Candidatos validados sem horário, pela ordem de validação. Chamados para os lugares de quem faltar.</p>
+  {% if espera %}
+  <ol class="espera-lista">{% for m in espera %}{% set r = m.r %}
+    <li>{% if m.visivel %}<b>{{ r.cand_nome }}</b>{% if rh %} · {{ r.cand_telefone }} · {{ r.cand_email }}{% if r.cv_url and cv_disponivel %} · <a href="{{ url_for('ver_cv', id_submissao=r.id_submissao, choice_id=r.choice_id) }}" target="_blank" rel="noopener">CV</a>{% endif %}{% elif t.perfil == 'coordenador' or r.id_tecnico == t.id_tecnico %} · <a href="{{ url_for('detalhe', id_submissao=r.id_submissao, choice_id=r.choice_id) }}">Abrir</a>{% endif %}{% else %}<span class="suave">Candidatura de outro técnico</span>{% endif %}</li>
+  {% endfor %}</ol>
+  {% else %}<p class="suave">Ninguém em espera.</p>{% endif %}
+</section>
+{% endblock %}

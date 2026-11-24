@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{# Ponto de situação final, depois da Feira (13 Out 2026), a cada técnico de entidade: quem
+   não compareceu (para os poder contactar), as entrevistas feitas pelos que compareceram e o
+   seguimento no dashboard. Preparado no fecho do dia da receção (app.fecho_por_tecnico). #}
+{% set cores = {
+  "feita": "background:#E3F2E8;color:#1D5C33;border:1px solid #B7DBC3;",
+  "extra": "background:#E1EEF6;color:#0B4A70;border:1px solid #B5D2E4;",
+  "nao-feita": "background:#EEF1F3;color:#4A6172;border:1px solid #C4D6DE;",
+} %}
+{% set th = "padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;" %}
+{% set td = "padding:8px;border-bottom:1px solid #C4D6DE;vertical-align:top;" %}
+{% block largura %}720{% endblock %}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">A XI Feira de Emprego de Carnide realizou-se a 13 de Outubro, na Lispolis. Obrigado por ter inscrito candidatos{% if g.entidade %} pela entidade <b>{{ g.entidade }}</b>{% endif %}. Este é o ponto de situação final, com o que ficou registado na receção da Feira.</p>
+
+<p style="margin:4px 0 16px;font-size:13px;">
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #287A45;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.presentes }}</b> {{ 'compareceu' if g.resumo.presentes == 1 else 'compareceram' }}</span>
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #0B5E8E;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.feitas }}</b> {{ 'entrevista feita' if g.resumo.feitas == 1 else 'entrevistas feitas' }}</span>
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #B3261E;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.faltaram }}</b> não {{ 'compareceu' if g.resumo.faltaram == 1 else 'compareceram' }}</span>
+</p>
+
+{% if g.faltaram %}
+<h2 style="margin:20px 0 6px;font-size:17px;color:#0E2A3B;">Não compareceram</h2>
+<p style="margin:0 0 8px;font-size:14px;">Estes candidatos não se apresentaram na receção. Ficam os contactos, para o caso de os querer contactar.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:14px;">
+  <tr><th align="left" style="{{ th }}">Candidato/a</th><th align="left" style="{{ th }}">Contacto</th><th align="left" style="{{ th }}">Tinha entrevista em</th></tr>
+  {% for x in g.faltaram %}
+  <tr>
+    <td style="{{ td }}font-weight:600;">{{ x.nome }}</td>
+    <td style="{{ td }}">{{ x.telefone }}{% if x.email %}<br><span style="font-size:13px;color:#4A6172;">{{ x.email }}</span>{% endif %}</td>
+    <td style="{{ td }}">{% for e in x.entrevistas %}{{ e.empresa }}{% if e.texto %} <span style="color:#4A6172;">· {{ e.texto }}</span>{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if g.presentes %}
+<h2 style="margin:24px 0 6px;font-size:17px;color:#0E2A3B;">Compareceram: entrevistas feitas</h2>
+<p style="margin:0 0 8px;font-size:14px;">Por candidato, as entrevistas feitas na Feira. Com as faltas, alguns candidatos fizeram entrevistas a mais, acrescentadas no próprio dia; outros não chegaram a fazer todas aquelas em que estavam inscritos.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:14px;">
+  <tr><th align="left" style="{{ th }}">Candidato/a</th><th align="left" style="{{ th }}">Empresa</th><th align="left" style="{{ th }}">Na Feira</th></tr>
+  {% for x in g.presentes %}{% set ultimo = loop.last %}
+  {% for e in x.entrevistas %}
+  <tr>
+    <td style="padding:8px;vertical-align:top;font-weight:600;{{ 'border-bottom:1px solid #C4D6DE;' if loop.last }}">{% if loop.first %}{{ x.nome }}{% endif %}</td>
+    <td style="padding:8px;vertical-align:top;{{ 'border-bottom:1px solid #C4D6DE;' if loop.last }}">{{ e.empresa }}</td>
+    <td style="padding:8px;vertical-align:top;{{ 'border-bottom:1px solid #C4D6DE;' if loop.last }}"><span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;{{ cores[e.classe] }}">{{ e.texto }}</span></td>
+  </tr>
+  {% endfor %}
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2 style="margin:28px 0 6px;font-size:17px;color:#0E2A3B;">Depois da Feira: o acompanhamento dos candidatos</h2>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="background:#F4F8FA;border-left:4px solid #5CC4D8;padding:12px 14px;font-size:14px;">
+  <p style="margin:0 0 8px;">Com o encerramento da Feira, começa a fase de acompanhamento da situação dos candidatos, para apurar o resultado dos processos de recrutamento: se tiveram nova entrevista, se foram selecionados e se ficaram ou não contratados.</p>
+  <p style="margin:0 0 8px;">Esta informação pode chegar através dos RH das empresas participantes, dos técnicos que inscreveram os candidatos e da própria equipa de organização da Feira. Por isso, durante um período alargado, a organização vai continuar a contactar as empresas, os técnicos e os próprios candidatos, para recolher e actualizar esta informação.</p>
+  <p style="margin:0 0 8px;">No dashboard pessoal que já usa para acompanhar os candidatos que inscreveu, há agora o botão <b>«Acompanhamento»</b>. Mostra os seus candidatos que fizeram entrevista na Feira, empresa a empresa (incluindo as entrevistas acrescentadas no dia), com:</p>
+  <ul style="margin:0 0 8px;padding-left:20px;">
+    <li>Fez nova entrevista? · Foi selecionado? · Ficou contratado?</li>
+    <li>Tipo e duração do contrato, e observações.</li>
+  </ul>
+  <p style="margin:0 0 8px;">As empresas registam o acompanhamento do lado delas, e o que registarem aparece-lhe aí. <b>Se tiver novas informações sobre os seus candidatos</b> (uma segunda entrevista, uma contratação), agradecemos que as registe na área «Acompanhamento» do seu dashboard ou as faça chegar à técnica Ana Coordenadora. O que registar fica visível à empresa e à coordenação, com a indicação de quem o actualizou. Ao guardar, só mudam as linhas que alterou.</p>
+  <p style="margin:0;">Use o mesmo link pessoal que recebeu a 7 de Outubro (assunto «XI Feira de Emprego · o seu acesso ao estado dos candidatos que inscreveu»). Passou a ser válido até <b>{{ validade }}</b>. Se não o encontrar, responda a este e-mail e enviamos-lhe um novo.</p>
+</td></tr></table>
+
+<p style="margin:16px 0 0;font-size:13px;color:#4A6172;">Para esclarecer alguma situação, responda a este e-mail. Obrigado pela colaboração ao longo de toda a Feira.</p>
+{% endblock %}

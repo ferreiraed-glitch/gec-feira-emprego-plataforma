@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block titulo %}Receção · check-in{% endblock %}
+{# Check-in no dia da Feira (7 Out 2026): pensado para tablet. Cada candidato é um
+   formulário; com JavaScript grava sem recarregar (static/rececao.js), sem ele
+   recarrega a página e volta ao mesmo candidato. #}
+{% block conteudo %}
+<div class="cabeca">
+  <h1>Receção · check-in</h1>
+  <ul class="resumo" data-resumo>
+    <li class="marcado"><b data-n="presentes">{{ resumo.presentes }}</b> / {{ resumo.pessoas }} presentes</li>
+    <li class="espera"><b data-n="feitas">{{ resumo.feitas }}</b> / {{ resumo.entrevistas }} entrevistas feitas</li>
+  </ul>
+  <p class="suave">Ao marcar «Presente», as entrevistas ficam logo assinaladas como feitas — retire a marca de quem desistir. Quem chega sem inscrição regista-se em «+ Candidato sem inscrição». Em «Nova entrevista» pode acrescentar entrevistas noutras empresas, mesmo a quem já tem três (por exemplo, para aproveitar faltas). Se no dia a empresa ou a hora mudarem, acerte-as e carregue em «Guardar». Aparecem as candidaturas validadas e as ainda «Por validar» (assinaladas a laranja; também podem aparecer na Feira), por ordem alfabética.</p>
+</div>
+{% if fecho %}<p class="fecho-feito">Dia fechado a {{ para_local(fecho.em, '%d/%m às %H:%M') }}: {{ fecho.faltas }} «Não compareceu» · e-mails aos técnicos: {{ envio.enviados }} de {{ envio.n }} enviados{% if envio.falhados %}, {{ envio.falhados }} com erro{% endif %}. <a href="{{ url_for('rececao_fecho') }}">Ver o envio</a></p>{% endif %}
+{% if ok %}<p class="ok">Guardado.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+{% if analise %}
+<details class="rececao-analise" open>
+  <summary>Análise do dia <span class="suave">(actualiza ao recarregar a página)</span></summary>
+  {% include "_rececao_graficos.html" %}
+</details>
+{% endif %}
+
+<div class="rececao-barra">
+  <label class="rececao-procura">Procurar <input type="search" data-filtro placeholder="Nome do candidato" autocomplete="off"></label>
+  <span class="rececao-accoes">
+  {% if t.perfil == 'coordenador' %}<a class="botao-sec" href="{{ url_for('rececao_csv') }}">Exportar CSV (estatística)</a>
+  <a class="botao-sec" href="{{ url_for('rececao_relatorio') }}" target="_blank" rel="noopener">Relatório PDF (presentes, inscritos no dia, faltas)</a>{% endif %}
+  {% if not fecho %}<a class="botao-sec fechar-dia" href="{{ url_for('rececao_fecho') }}">Fechar o dia: faltas e e-mail aos técnicos</a>{% endif %}
+  </span>
+</div>
+
+{# Candidato que chega sem inscrição (13 Out 2026): fica presente, com a primeira entrevista. #}
+<details class="rececao-novo"{% if erro and request.args.get('novo') %} open{% endif %}>
+  <summary>+ Candidato sem inscrição</summary>
+  <form method="post" action="{{ url_for('rececao_novo') }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="campo">Nome <input type="text" name="nome" maxlength="120" required autocomplete="off"></label>
+    <label class="campo">Telefone <input type="tel" name="telefone" maxlength="30" autocomplete="off"></label>
+    <label class="campo">Entrevista na empresa
+      <select name="empresa" required>
+        <option value="">Escolher…</option>
+        {% for e in empresas %}<option value="{{ e.empresa }}">{{ e.empresa }}</option>{% endfor %}
+      </select></label>
+    <label class="campo">Hora <input type="time" name="hora" step="300"></label>
+    <button type="submit" class="principal">Registar</button>
+  </form>
+  <p class="ajuda">Fica marcado como presente. Mais entrevistas acrescentam-se depois, no próprio candidato, em «Nova entrevista».</p>
+</details>
+
+{% if not pessoas %}<p class="vazio">Ainda não há candidaturas validadas.</p>{% endif %}
+<div class="rececao-lista">
+{% for p in pessoas %}
+<form method="post" action="{{ url_for('rececao_gravar') }}" class="pessoa{{ ' presente' if p.presente }}{{ ' faltou' if p.faltou }}" id="p-{{ p.id }}" data-nome="{{ p.nome|lower }}">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="pessoa-id">
+    <span class="suave num">{{ loop.index }}</span>
+    <div><b>{{ p.nome }}</b>{% if p.avulso %} <span class="flag">Sem inscrição</span>{% endif %}{% if p.faltou %} <span class="flag faltou">Não compareceu</span>{% endif %}<br><span class="suave num">{{ p.telefone }}</span></div>
+  </div>
+  <label class="toque presenca"><input type="checkbox" name="presente" value="1" {{ 'checked' if p.presente }} data-auto> Presente</label>
+  <div class="pessoa-cands">
+    {% for c in p.cands %}{% set i = loop.index0 %}
+    <div class="cand{{ ' feita' if c.entrevistado }}">
+      <input type="hidden" name="cand" value="{{ c.chave }}">
+      <span class="prevista">{{ c.empresa }} <span class="hora-ent{{ ' espera' if c.hora.startswith('Espera') }}{{ ' pv' if c.por_validar }}{{ ' extra' if c.extra }}">{{ c.hora }}</span></span>
+      <label class="campo">Empresa no dia
+        <select name="empresa_dia:{{ i }}">
+          {% for e in empresas %}<option value="{{ e.empresa }}" {{ 'selected' if e.empresa == c.empresa_dia }}>{{ e.empresa }}</option>{% endfor %}
+        </select></label>
+      <label class="campo">Hora <input type="time" name="horario_dia:{{ i }}" value="{{ c.horario_dia }}" step="300"></label>
+      <label class="toque"><input type="checkbox" name="entrevistado:{{ i }}" value="1" {{ 'checked' if c.entrevistado }} data-auto> Entrevista feita</label>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="pessoa-gravar">
+    <button type="submit" class="principal">Guardar</button>
+    <span class="suave" data-estado role="status"></span>
+  </div>
+  {% if p.pode_extra %}
+  {# Os campos pertencem ao formulário «extra-…» (atributo form), que fica fora deste: não se aninham. #}
+  <div class="pessoa-extra">
+    <b>+ Nova entrevista</b>
+    <input type="hidden" name="id" value="{{ p.id }}" form="extra-{{ p.id }}">
+    <label class="campo">Empresa
+      <select name="empresa" form="extra-{{ p.id }}" required>
+        <option value="">Escolher…</option>
+        {% for e in empresas if e.empresa not in p.cands|map(attribute='empresa') %}<option value="{{ e.empresa }}">{{ e.empresa }}</option>{% endfor %}
+      </select></label>
+    <label class="campo">Hora <input type="time" name="hora" step="300" form="extra-{{ p.id }}"></label>
+    <button type="submit" class="botao-sec" form="extra-{{ p.id }}">Adicionar</button>
+  </div>
+  {% endif %}
+</form>
+{% if p.pode_extra %}<form method="post" action="{{ url_for('rececao_extra') }}" id="extra-{{ p.id }}" hidden><input type="hidden" name="csrf" value="{{ csrf }}"></form>{% endif %}
+{% endfor %}
+</div>
+<script src="{{ url_for('static', filename='rececao.js') }}"></script>
+{% endblock %}

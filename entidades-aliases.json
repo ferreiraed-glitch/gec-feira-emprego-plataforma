@@ -1,0 +1,101 @@
+{
+  "_nota": "Nomes a mostrar para as entidades que inscrevem candidatos (6 Out 2026). Os padrões são expressões regulares aplicadas ao nome normalizado (minúsculas, sem acentos nem pontuação, sem 'de/da/do/dos/das/e/a/o'). Um grupo que coincida com um padrão mostra o 'nome' daqui; os outros mostram o nome mais usado. As entidades já se juntam sozinhas pelo e-mail e telefone do técnico e pelo domínio de e-mail: este ficheiro só é preciso para siglas, nomes por extenso e para dar o nome certo. Usado por entidades.py na sincronização; copiar para /opt/gec-fe2026/ no CT129.",
+  "entidades": [
+    {
+      "nome": "Santa Casa da Misericórdia de Lisboa (SCML)",
+      "padroes": [
+        "\\bscml\\b",
+        "misericordia lisboa"
+      ]
+    },
+    {
+      "nome": "APEA - Associação Portuguesa de Emprego Apoiado",
+      "padroes": [
+        "\\bapea\\b",
+        "portuguesa emprego apoiado"
+      ]
+    },
+    {
+      "nome": "GIP ANEME",
+      "padroes": [
+        "\\baneme\\b"
+      ]
+    },
+    {
+      "nome": "Junta de Freguesia de Santa Maria Maior",
+      "padroes": [
+        "\\bjfsmm\\b",
+        "santa maria maior"
+      ]
+    },
+    {
+      "nome": "Junta de Freguesia de São Domingos de Benfica",
+      "padroes": [
+        "\\bjfsdb\\b",
+        "sao domingos benfica"
+      ]
+    },
+    {
+      "nome": "CEPAC - Centro Padre Alves Correia",
+      "padroes": [
+        "\\bcepac\\b",
+        "padre alves correia"
+      ]
+    },
+    {
+      "nome": "CRPG - Centro de Reabilitação Profissional de Gaia",
+      "padroes": [
+        "\\bcrpg\\b"
+      ]
+    },
+    {
+      "nome": "CRESCER - Associação de Intervenção Comunitária",
+      "padroes": [
+        "\\bcrescer\\b"
+      ]
+    },
+    {
+      "nome": "Horas de Sonho - Apoio à Criança e à Família",
+      "padroes": [
+        "horas sonho"
+      ]
+    },
+    {
+      "nome": "Associação Renovar a Mouraria",
+      "padroes": [
+        "renovar mouraria"
+      ]
+    },
+    {
+      "nome": "Associação João 13",
+      "padroes": [
+        "\\bjoao 13\\b"
+      ]
+    },
+    {
+      "nome": "ICAD - CRI Centro das Taipas",
+      "padroes": [
+        "\\btaipas\\b"
+      ]
+    },
+    {
+      "nome": "Orientar - Associação de Intervenção para a Mudança",
+      "padroes": [
+        "\\borientar\\b"
+      ]
+    },
+    {
+      "nome": "C.S. Exército de Salvação",
+      "padroes": [
+        "exercito salvacao"
+      ]
+    }
+  ],
+  "_nota_emails": "Correcções de e-mails escritos com erro no formulário (8 Out 2026): errado → certo. O campo original no Formbricks não muda. Para técnicos, a correcção vale para o e-mail unificado (tecnico_email_canon), o mostrado no dashboard e o usado nos envios; para candidatos, vale para os e-mails aos candidatos (correio.py). As de candidatos são tentativas a partir de e-mails devolvidos a 8 Out, com a gralha evidente face ao nome.",
+  "emails": {
+    "tecnica.errada@exemplo.org": "tecnica.certa@exemplo.org",
+    "gralha1@exemplo.pt": "certo1@exemplo.pt",
+    "gralha2@exemplo.pt": "certo2@exemplo.pt",
+    "gralha3@exemplo.pt": "certo3@exemplo.pt"
+  }
+}

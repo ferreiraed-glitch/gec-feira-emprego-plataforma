@@ -1,0 +1,19 @@
+{
+  "_nota": "Páginas (1.ª e última, contadas a partir de 1) de cada empresa em 'XI FE Carnide - DOC OFERTAS.pdf' (versão de 25 Set 2026, 52 páginas): a página de abertura da empresa e uma página por oferta. Se o catálogo mudar, rever estes números. O PDF é publicado no CT129 como /opt/gec-fe2026/catalogo-ofertas.pdf (FE2026_CATALOGO).",
+  "empresas": {
+    "DOMINO'S PIZZA": [5, 8],
+    "EL CORTE INGLÉS": [9, 15],
+    "HORAS DE SONHO": [16, 17],
+    "HORTO DO CAMPO GRANDE": [18, 20],
+    "INDITEX": [21, 22],
+    "LIDL": [23, 24],
+    "McDONALD'S": [25, 26],
+    "MERISTEMA": [27, 29],
+    "PLATEFORM": [30, 33],
+    "PRIMEFOOD": [34, 36],
+    "SANTA CASA DA MISERICÓRDIA DE LISBOA (SCML)": [37, 41],
+    "SCML Babysitting": [42, 43],
+    "STEAM": [44, 50],
+    "STRONG CHARON": [51, 52]
+  }
+}

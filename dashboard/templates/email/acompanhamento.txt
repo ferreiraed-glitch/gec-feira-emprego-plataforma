@@ -1,0 +1,31 @@
+{% extends "base.txt" %}
+{% set um = g.linhas|length == 1 %}
+{% block corpo %}
+{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}
+
+{% if g.dos_tecnicos %}
+{{ 'Um técnico de entidade actualizou' if um else 'Os técnicos das entidades actualizaram' }} o acompanhamento {{ 'de um candidato' if um else 'de candidatos' }} que inscreveram. Marcado com *: o que mudou desde a última mensagem.
+{% else %}
+Houve {{ 'uma actualização' if um else 'actualizações' }} no acompanhamento {{ 'de um candidato' if um else 'de candidatos' }} que inscreveu{% if g.entidade %} pela entidade {{ g.entidade }}{% endif %}, registada{{ 's' if not um }} pela empresa ou pela coordenação da Feira. Marcado com *: o que mudou desde a última mensagem.
+{% endif %}
+
+{% for l in g.linhas %}
+{{ l.candidato }} · {{ l.empresa }}
+Actualizado{% if l.quem %} {{ l.quem }}{% endif %} a {{ l.quando }}
+{% for c in l.campos %}
+  {{ '*' if c.mudou else ' ' }} {{ c.rotulo }}{{ '' if c.rotulo.endswith('?') else ':' }} {{ c.valor }}
+{% endfor %}
+
+{% endfor %}
+{% if g.dos_tecnicos %}
+O registo completo está no menu «Acompanhamento» do dashboard da coordenação e no CSV do acompanhamento.
+
+Mensagem automática: só sai quando há alterações feitas pelos técnicos das entidades.
+{% else %}
+Pode ver e completar este registo no botão «Acompanhamento» do seu dashboard, com o mesmo link pessoal de sempre (válido até {{ validade }}).
+
+Se tiver novas informações sobre estes candidatos, agradecemos que as registe aí ou as faça chegar à técnica {{ contacto }}, que recebe cópia desta mensagem.
+
+Só recebe esta mensagem quando há novidades sobre os seus candidatos. Para esclarecer alguma situação, responda a este e-mail.
+{% endif %}
+{% endblock %}

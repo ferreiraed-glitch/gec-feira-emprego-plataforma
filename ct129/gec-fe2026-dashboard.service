@@ -1,0 +1,25 @@
+# /etc/systemd/system/gec-fe2026-dashboard.service (CT129)
+[Unit]
+Description=GEC FE2026 — dashboard de candidaturas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=fe2026
+Group=fe2026
+WorkingDirectory=/opt/gec-fe2026/dashboard
+EnvironmentFile=/etc/gec-fe2026/dashboard.env
+UMask=0077
+ExecStart=/usr/bin/gunicorn --workers 2 --threads 4 --bind 0.0.0.0:8080 \
+    --access-logfile - --access-logformat '%(t)s %(s)s %(m)s %(U)s %(b)s %(L)ss' app:app
+Restart=on-failure
+RestartSec=5
+# Endurecimento: só lê o código e escreve na pasta da BD.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/gec-fe2026
+
+[Install]
+WantedBy=multi-user.target

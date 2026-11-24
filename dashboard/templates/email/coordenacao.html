@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{# Link de acesso de coordenação (15 Out 2026): um e-mail por pessoa, com o manual dos dashboards em anexo. #}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">Foi-lhe criado um acesso de <b>coordenação</b> ao dashboard da XI Feira de Emprego de Carnide. Com ele pode consultar todas as candidaturas e o seu estado, as listagens, a receção, o acompanhamento dos candidatos depois da Feira e a avaliação do evento.</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ link }}" style="display:inline-block;padding:12px 26px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:15px;">Abrir o dashboard</a>
+  </td>
+</tr></table>
+
+<p style="margin:0 0 12px;font-size:14px;"><b>O link é pessoal.</b> Dá acesso a dados pessoais dos candidatos e cada acesso fica registado em seu nome: por favor, não o reencaminhe nem o partilhe. Um colega que precise de acesso pede o seu próprio link à coordenação.</p>
+<p style="margin:0 0 12px;font-size:14px;">É válido até {{ validade }}. No primeiro acesso o browser guarda a sessão; depois basta voltar a abrir o link. Se deixar de funcionar, aparece «Acesso não autorizado»: peça um novo.</p>
+<p style="margin:0 0 12px;font-size:14px;">Segue em anexo o <b>Manual dos dashboards</b>. A parte da coordenação está nas páginas 4 a 12.</p>
+<p style="margin:0;font-size:13px;color:#4A6172;">Se o botão não funcionar, copie este endereço para o browser:<br><span style="word-break:break-all;">{{ link }}</span></p>
+{% endblock %}
+{% block nota_rodape %}Mensagem pessoal enviada pela coordenação da Feira de Emprego. Contém um link de acesso individual: não a reencaminhe.{% endblock %}

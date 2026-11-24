@@ -1,0 +1,10 @@
+#!/bin/sh
+# CT129 — sincroniza as respostas do Formbricks (CT127) para a BD SQLite.
+# Instalado em /usr/local/bin/; corre pelo cron como utilizador fe2026.
+# O flock evita duas sincronizações em simultâneo se uma se atrasar.
+umask 077
+export FE2026_ENV_FILE=/etc/gec-fe2026/formbricks.env
+export FE2026_DB=/var/lib/gec-fe2026/fe2026.db
+echo "── $(date '+%F %T')"
+exec flock -n /var/lib/gec-fe2026/.exportar.lock \
+    /usr/bin/python3 /opt/gec-fe2026/exportar_candidaturas.py "$@"

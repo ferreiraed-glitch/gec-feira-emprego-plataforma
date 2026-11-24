@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{# Aviso da página «Estatísticas» (4 Nov 2026) à coordenação e aos técnicos; sem links (usam o seu perfil). #}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">O dashboard da XI Feira de Emprego de Carnide tem uma <b>nova funcionalidade</b>, no botão <b>«Estatísticas»</b> do topo da página, disponível em todos os perfis.</p>
+<p style="margin:0 0 8px;">Reúne, num só lugar, os números da Feira em <b>dados agregados e anónimos</b> (sem nomes, contactos nem comentários), para analisarmos esta edição e prepararmos a próxima:</p>
+<ul style="margin:0 0 12px;padding-left:20px;">
+  <li><b>Candidaturas:</b> inscritos, candidaturas por estado, número de empresas por candidato, habilitações, localidades e candidatos por entidade;</li>
+  <li><b>Dia da Feira:</b> comparências, ausências, inscrições no local e entrevistas realizadas;</li>
+  <li><b>Depois da Feira:</b> seguimento, novas entrevistas, selecionados e contratados, com o tipo de contrato;</li>
+  <li><b>Avaliação da Feira</b> pelas empresas e pelos parceiros, com gráficos por pergunta.</li>
+</ul>
+{% if com_resumo %}
+<p style="margin:0 0 12px;">No início da página encontra ainda um <b>resumo dos comentários</b> das perguntas abertas das avaliações: pontos positivos, pontos negativos, elogios e sugestões, com os números de preenchimento (quantas respostas preencheram alguma pergunta aberta e quantas não preencheram nenhuma). O resumo é anónimo, sem referência a quem respondeu.</p>
+{% endif %}
+<p style="margin:0 0 12px;">Os números atualizam-se sempre que abre a página. Aceda como habitualmente, pelo seu link pessoal. Se tiver alguma dificuldade, basta responder a este e-mail.</p>
+{% endblock %}
+{% block nota_rodape %}Mensagem enviada pela coordenação da Feira de Emprego.{% endblock %}

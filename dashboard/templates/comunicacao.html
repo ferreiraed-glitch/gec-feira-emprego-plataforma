@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Validadas e anuladas{% endblock %}
+{% block conteudo %}
+<p class="migalhas nao-imprimir"><a href="{{ url_for('lista') }}">← Candidaturas</a></p>
+<div class="cabeca">
+  <h1>Candidaturas validadas e anuladas</h1>
+  <p class="suave">Por entidade e técnico/a que fez a inscrição · {{ total }} candidatura{{ 's' if total != 1 }} · {{ agora }}{% if t.perfil == 'tecnico' %} · triagem de {{ t.nome }}{% endif %}</p>
+</div>
+
+{% if grupos %}
+<p class="accoes nao-imprimir">
+  <button type="button" data-imprimir>Imprimir ou guardar em PDF</button>
+  <a class="botao-sec" href="{{ url_for('comunicacao_csv') }}">Descarregar em CSV (Excel)</a>
+</p>
+<p class="ajuda nao-imprimir">Serve para comunicar a cada Gabinete os candidatos validados e os anulados, com o motivo escrito em Observações. As candidaturas ainda «Por validar» não entram. Envie a cada entidade só a parte que lhe diz respeito.</p>
+
+{% for gr in grupos %}
+<section class="caixa grupo-com">
+  <h2>{{ gr.r.entidade or 'Entidade não indicada' }}</h2>
+  <p class="suave">Inscrição feita por <b>{{ gr.r.tecnico_ent or '—' }}</b>{% if gr.r.tecnico_ent_email %} · {{ gr.r.tecnico_ent_email }}{% endif %}{% if gr.r.tecnico_ent_tel %} · {{ gr.r.tecnico_ent_tel }}{% endif %}</p>
+  <table class="lista compacta">
+    <thead><tr><th>Candidato/a</th><th>Empresa · ofertas</th><th>Resultado</th><th>Observações</th>{% if t.perfil == 'coordenador' %}<th>Técnico/a</th>{% endif %}</tr></thead>
+    <tbody>
+    {% for l in gr.linhas %}{% set r = l.r %}
+    <tr>
+      <td><b>{{ r.cand_nome }}</b></td>
+      <td><b>{{ r.empresa }}</b><br><span class="suave">{{ r.ofertas_seleccionadas or '—' }}</span></td>
+      <td><span class="estado {{ l.resultado[0] }}{{ ' tolerancia' if l.resultado[0] == 'marcado' and tolerancia(r, r.horario_entrevista) }}">{{ l.resultado[1] }}</span></td>
+      <td class="obs-completa">{{ r.observacoes or '—' }}</td>
+      {% if t.perfil == 'coordenador' %}<td>{{ r.id_tecnico or '—' }}</td>{% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endfor %}
+<script src="{{ url_for('static', filename='imprimir.js') }}"></script>
+{% else %}
+<p class="vazio">Ainda não há candidaturas validadas nem anuladas{% if t.perfil == 'tecnico' %} entre as que lhe estão atribuídas{% endif %}.</p>
+{% endif %}
+{% endblock %}

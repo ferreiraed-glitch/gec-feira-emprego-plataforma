@@ -1,0 +1,35 @@
+{# Campos de uma linha do seguimento, iguais na página da empresa e na do técnico da
+   entidade (13 Out 2026). `i` é a posição da linha no formulário; `v:i` leva o resumo
+   dos valores mostrados, para só se gravar o que a pessoa alterou. #}
+{% macro campos(l, i, s, sim_nao, tipos, assin, quem, com_obs=true) %}
+      {% for campo in ('nova_entrevista', 'selecionado', 'contratado') %}
+      <td><select name="{{ campo }}:{{ i }}" aria-label="{{ campo|replace('_', ' ') }} · {{ l.nome }} · {{ l.empresa }}">
+        <option value="">—</option>
+        {% for v in sim_nao %}<option {{ 'selected' if s and s[campo] == v }}>{{ v }}</option>{% endfor %}
+      </select></td>
+      {% endfor %}
+      <td><select name="tipo_contrato:{{ i }}" aria-label="Tipo de contrato · {{ l.nome }} · {{ l.empresa }}">
+        <option value="">—</option>
+        {% for v in tipos %}<option {{ 'selected' if s and s.tipo_contrato == v }}>{{ v }}</option>{% endfor %}
+      </select></td>
+      <td><input type="text" name="duracao_contrato:{{ i }}" maxlength="60" value="{{ s.duracao_contrato or '' if s }}" placeholder="ex. 6 meses" aria-label="Duração do contrato · {{ l.nome }} · {{ l.empresa }}"></td>
+      {% if com_obs %}<td><textarea name="observacoes:{{ i }}" rows="2" maxlength="1000" aria-label="Observações · {{ l.nome }} · {{ l.empresa }}">{{ s.observacoes or '' if s }}</textarea>
+        {{ ocultos(l, i, s, assin) }}
+        {% if s %}<span class="ajuda">Actualizado {{ quem(s) }} a {{ para_local(s.alterado_em) }}</span>{% endif %}</td>{% endif %}
+{% endmacro %}
+
+{# Observações numa linha própria, a toda a largura, por baixo dos campos do candidato
+   (vista da empresa, 20 Out 2026): os textos longos lêem-se sem rolar a caixa. #}
+{% macro observacoes(l, i, s, assin, quem) %}
+        <div class="obs-cabeca">
+          <label for="obs-{{ i }}">Observações</label>
+          {% if s %}<span class="ajuda">Actualizado {{ quem(s) }} a {{ para_local(s.alterado_em) }}</span>{% endif %}
+        </div>
+        <textarea id="obs-{{ i }}" name="observacoes:{{ i }}" rows="2" maxlength="1000" aria-label="Observações · {{ l.nome }} · {{ l.empresa }}">{{ s.observacoes or '' if s }}</textarea>
+        {{ ocultos(l, i, s, assin) }}
+{% endmacro %}
+
+{% macro ocultos(l, i, s, assin) %}<input type="hidden" name="linha" value="{{ l.sid }}|{{ l.empresa }}">
+        <input type="hidden" name="v:{{ i }}" value="{{ assin(s) }}">{% endmacro %}
+
+{% macro legenda_feira(f) %}{% if f %}<span class="feira-{{ f[0] }}">{{ f[1] }}</span>{% endif %}{% endmacro %}

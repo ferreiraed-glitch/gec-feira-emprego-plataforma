@@ -1,0 +1,38 @@
+{
+  "survey_id": "SURVEY_ID",
+  "workspace_id": "cmu5h7tw2000101owucewq4v5",
+  "master_element_id": "empresas_master",
+  "master_block_id": "jxmecosfogyr3xkxwnrek8pk",
+  "company_choice_ids": {
+    "DOMINO'S PIZZA": "emp_domino_s_pizza",
+    "EL CORTE INGLÉS": "emp_el_corte_ingles",
+    "HORAS DE SONHO": "emp_horas_de_sonho",
+    "HORTO DO CAMPO GRANDE": "emp_horto_do_campo_grande",
+    "INDITEX": "emp_inditex",
+    "LIDL": "emp_lidl",
+    "McDONALD'S": "emp_mcdonald_s",
+    "MERISTEMA": "emp_meristema",
+    "PLATEFORM": "emp_plateform",
+    "PRIMEFOOD": "emp_primefood",
+    "SANTA CASA DA MISERICÓRDIA DE LISBOA (SCML)": "emp_santa_casa_da_misericordia_de",
+    "SCML Babysitting": "emp_scml_babysitting",
+    "STEAM": "emp_steam",
+    "STRONG CHARON": "emp_strong_charon"
+  },
+  "company_blocks": {
+    "DOMINO'S PIZZA": "v8rvhs1k3aq6l6gt6mjxk87a",
+    "EL CORTE INGLÉS": "tu5bhxtpdpff5e8ii49kq71n",
+    "HORAS DE SONHO": "5ixx04on8rkkeid831kzsl7m",
+    "HORTO DO CAMPO GRANDE": "rmtzx272hpoevb9ooaedoecv",
+    "INDITEX": "b5anl99tairuez196udzom96",
+    "LIDL": "ui1a7vt51ro6hczylc2jrdfk",
+    "McDONALD'S": "sm9vwak9faqnhdds74446dmh",
+    "MERISTEMA": "c6pr5n8i4p40mgg1w103dgdz",
+    "PLATEFORM": "xvgpmm82i1lr3pe29gd8afpk",
+    "PRIMEFOOD": "n54nzdkyayq3s195jmsnd8du",
+    "SANTA CASA DA MISERICÓRDIA DE LISBOA (SCML)": "bd467kd6fleepzhpcf07uqnu",
+    "SCML Babysitting": "bex6rwn2djkq86x97ywpb74s",
+    "STEAM": "hqzit3uea3ge8n6qiwepxsk2",
+    "STRONG CHARON": "er7teyee9ywk2ssd2jjrpjq0"
+  }
+}

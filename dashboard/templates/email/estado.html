@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{# Ponto de situação às 18:00 (até 7 Out também às 13:00) para cada técnico que inscreveu candidatos (7 Out 2026). #}
+{% set cores = {
+  "pendente": "background:#FFF4D1;color:#6B4E00;border:1px solid #F2D98A;",
+  "marcado": "background:#E3F2E8;color:#1D5C33;border:1px solid #B7DBC3;",
+  "espera": "background:#E1EEF6;color:#0B4A70;border:1px solid #B5D2E4;",
+  "anulado": "background:#EEF1F3;color:#4A6172;border:1px solid #C4D6DE;",
+} %}
+{% block largura %}720{% endblock %}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+<p style="margin:0 0 12px;">Este é o ponto de situação, às {{ data.strftime('%H:%M') }} de {{ data.strftime('%d/%m') }}, das candidaturas que inscreveu{% if g.entidade %} pela entidade <b>{{ g.entidade }}</b>{% endif %} na XI Feira de Emprego de Carnide.</p>
+
+<p style="margin:4px 0 12px;font-size:13px;">
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #FFC629;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.pendente }}</b> por validar</span>
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #287A45;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.marcado }}</b> com entrevista</span>
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #0B5E8E;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.espera }}</b> em espera</span>
+  <span style="display:inline-block;margin:0 6px 6px 0;padding:5px 10px;border-left:4px solid #C4D6DE;background:#F4F8FA;"><b style="font-size:16px;">{{ g.resumo.anulado }}</b> anuladas</span>
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-size:14px;">
+  <tr>
+    <th align="left" style="padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;">Candidato/a</th>
+    <th align="left" style="padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;">Empresa</th>
+    <th align="left" style="padding:6px 8px;border-bottom:2px solid #0E2A3B;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4A6172;">Estado e entrevista</th>
+  </tr>
+  {% for l in g.linhas %}
+  <tr>
+    <td style="padding:8px 8px {{ '2px' if l.observacoes else '8px' }};{{ '' if l.observacoes else 'border-bottom:1px solid #C4D6DE;' }}vertical-align:top;font-weight:600;">{{ l.candidato }}</td>
+    <td style="padding:8px 8px {{ '2px' if l.observacoes else '8px' }};{{ '' if l.observacoes else 'border-bottom:1px solid #C4D6DE;' }}vertical-align:top;">{{ l.empresa }}</td>
+    <td style="padding:8px 8px {{ '2px' if l.observacoes else '8px' }};{{ '' if l.observacoes else 'border-bottom:1px solid #C4D6DE;' }}vertical-align:top;"><span style="display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;{{ cores[l.classe] }}">{{ l.estado }}</span>{% if l.entrevista != '—' %}<br><span style="display:inline-block;margin-top:3px;font-size:13px;{{ 'font-weight:700;' if l.classe == 'marcado' }}">{{ l.entrevista }}</span>{% endif %}</td>
+  </tr>
+  {% if l.observacoes %}
+  <tr><td colspan="3" style="padding:0 8px 8px;border-bottom:1px solid #C4D6DE;font-size:13px;color:#4A6172;"><i>Observações:</i> {{ l.observacoes|replace('\r', '')|replace('\n', ' · ') }}</td></tr>
+  {% endif %}
+  {% endfor %}
+</table>
+
+<p style="margin:16px 0 0;font-size:13px;color:#4A6172;">As entrevistas realizam-se a <b>13 de Outubro, na Lispolis</b>. Uma candidatura validada em lista de espera recebe horário quando houver um lugar livre. Pode consultar o estado a qualquer momento no link pessoal do dashboard que recebeu por e-mail.</p>
+<p style="margin:8px 0 0;font-size:13px;color:#4A6172;">Este ponto de situação é enviado automaticamente às 18:00, até {{ ate.strftime('%d/%m') }}, quando houver alterações. Para esclarecer alguma situação, responda a este e-mail.</p>
+{% endblock %}

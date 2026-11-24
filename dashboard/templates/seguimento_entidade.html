@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_seguimento.html" import campos with context %}
+{% block titulo %}Acompanhamento dos meus candidatos{% endblock %}
+{# Técnico da entidade que inscreveu os candidatos (13 Out 2026): o seguimento dos seus
+   candidatos nas empresas em que fizeram entrevista na Feira. É o mesmo registo que a
+   empresa preenche: o que um grava, o outro vê. #}
+{% block conteudo %}
+<div class="cabeca">
+  <h1>Acompanhamento dos meus candidatos</h1>
+  <p class="suave">Os candidatos que inscreveu e que fizeram entrevista na Feira, empresa a empresa, incluindo as entrevistas acrescentadas no próprio dia. As empresas registam aqui o que aconteceu depois da entrevista; se souber de alguma novidade pelo candidato (uma nova entrevista, uma contratação), pode registá-la também. A empresa e a coordenação vêem o mesmo registo, com a indicação de quem o actualizou por último. Pode voltar a esta página até {{ para_local(t.expira_em, '%d/%m/%Y') }}.</p>
+</div>
+{% if ok %}<p class="ok">Acompanhamento guardado.</p>{% endif %}
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+{% if linhas %}
+<form method="post" class="form-seguimento">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="tabela-rola">
+  <table class="lista seguimento">
+    <thead><tr>
+      <th>Candidato/a</th><th>Empresa</th><th>Fez nova entrevista?</th><th>Foi selecionado?</th>
+      <th>Ficou contratado?</th><th>Tipo de contrato</th><th>Duração do contrato</th><th>Observações</th>
+    </tr></thead>
+    <tbody>
+    {% for l in linhas %}{% set s = seg.get((l.sid, l.empresa)) %}
+    <tr>
+      <td>{% if loop.first or loop.previtem.sid != l.sid %}<b>{{ l.nome }}</b><br><span class="suave">{{ l.telefone }}</span>{% endif %}</td>
+      <td><b>{{ l.empresa }}</b>{% if l.extra %} <span class="hora-ent extra">Extra</span>{% endif %}{% if l.hora %}<br><span class="suave num">{{ l.hora }}</span>{% endif %}</td>
+      {{ campos(l, loop.index0, s, sim_nao, tipos, assin, quem) }}
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="ajuda">«Extra» é uma entrevista acrescentada no próprio dia, na receção. «Tipo de contrato» e «Duração» só se aplicam a quem ficou contratado. Ao guardar, só mudam as linhas que alterou.</p>
+  <button type="submit" class="principal">Guardar acompanhamento</button>
+</form>
+{% else %}
+<p class="vazio">Nenhum dos candidatos que inscreveu tem entrevista registada na Feira.</p>
+{% endif %}
+<p class="ajuda"><a href="{{ url_for('lista') }}">← Ver todas as candidaturas que inscreveu</a></p>
+{% endblock %}

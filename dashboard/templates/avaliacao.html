@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Avaliação · {{ emp.empresa }}{% endblock %}
+{% block largura %}estreito{% endblock %}
+{# Questionário «Avaliação Final da Qualidade» (13 Out 2026), o mesmo que se
+   dava em papel às empresas. Várias respostas por empresa, uma por pessoa de
+   RH; cada uma pode ser revista. #}
+{% block conteudo %}
+<p class="migalhas">{% if t.perfil == 'coordenador' %}<a href="{{ url_for('avaliacao') }}">← Avaliação de todas as empresas</a> · {% endif %}{% if ja_responderam %}<a href="{{ url_for('avaliacao_empresa', choice_id=emp.choice_id) }}">← Respostas da {{ emp.empresa }} ({{ ja_responderam }})</a>{% endif %}</p>
+<div class="cabeca">
+  <h1>Avaliação do evento · {{ emp.empresa }}</h1>
+  <p class="suave">A sua opinião sobre a Feira ajuda-nos a perceber se as suas expectativas foram satisfeitas e a melhorar as próximas edições. Responda numa escala de 1 a 4. Se várias pessoas da empresa participaram, cada uma pode responder. Obrigado pela colaboração!</p>
+</div>
+{% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+{% if a and not erro %}<p class="suave">A corrigir a resposta de <b>{{ a.respondido_por }}</b>, de {{ para_local(a.criada_em) }}. Se é outra pessoa a responder, <a href="{{ url_for('avaliacao_responder', choice_id=emp.choice_id) }}">faça uma resposta nova</a>.</p>{% endif %}
+
+<form method="post" class="form-avaliacao">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <p class="escala-legenda">{% for v, nome in escala %}<span><b>{{ v }}</b> {{ nome }}</span>{% endfor %}</p>
+  {% for grupo, perguntas in grupos %}
+  <section class="caixa grupo-av">
+    <h2>{{ grupo }}</h2>
+    {% for k, rotulo in perguntas %}
+    <fieldset class="pergunta-av">
+      <legend>{{ rotulo }}</legend>
+      <div class="notas-av">
+        {% for v, nome in escala %}
+        <label title="{{ nome }}"><input type="radio" name="{{ k }}" value="{{ v }}" required {{ 'checked' if f and f[k]|string == v|string }}><span>{{ v }}</span><small>{{ nome }}</small></label>
+        {% endfor %}
+      </div>
+      {# Aparece (só com CSS) quando a nota é inferior a {{ nota_sem_obs }}; o servidor exige-a. #}
+      <label class="obs-av">Deu uma nota inferior a {{ nota_sem_obs }}: diga-nos o motivo, para podermos melhorar (obrigatório).
+        <textarea name="obs:{{ k }}" rows="2" maxlength="1000">{{ obs.get(k, '') }}</textarea></label>
+    </fieldset>
+    {% endfor %}
+  </section>
+  {% endfor %}
+  <section class="caixa grupo-av">
+    <h2>Sugestões e comentários</h2>
+    {% for k, rotulo in textos %}
+    <label class="texto-av"><span>{{ rotulo }} <span class="suave">(opcional)</span></span>
+      <textarea name="{{ k }}" rows="3" maxlength="2000">{{ f[k] or '' if f }}</textarea></label>
+    {% endfor %}
+    <label class="texto-av">Nome de quem responde
+      <input type="text" name="respondido_por" maxlength="120" required autocomplete="name" value="{{ f.respondido_por or '' if f }}"></label>
+  </section>
+  <button type="submit" class="principal">{{ 'Guardar correcções' if a else 'Enviar avaliação' }}</button>
+</form>
+{% endblock %}

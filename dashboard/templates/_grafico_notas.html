@@ -1,0 +1,34 @@
+{# Barras empilhadas com a distribuição das notas por pergunta (4 Nov 2026), em SVG
+   gerado no servidor (a política de segurança não deixa JavaScript nem estilos em
+   linha). Recebe `itens` ({rotulo, media, dist, na}) e `niveis` (valor, nome), do
+   mais baixo ao mais alto. A cor vai do vermelho (pior) ao verde (melhor). #}
+{% set n = niveis|length %}
+{% set cores = ['#C23A62', '#B24A18', '#0B5E8E', '#287A45'] if n == 4 else ['#C23A62', '#B24A18', '#8A9BA8', '#0B5E8E', '#287A45'] %}
+{% set classes = ['c-vinho', 'c-laranja', 'c-azul', 'c-verde'] if n == 4 else ['c-vinho', 'c-laranja', 'c-cinza', 'c-azul', 'c-verde'] %}
+{% set alt = 10 %}
+<figure class="grafico g-notas">
+  <svg viewBox="0 0 150 {{ 3 + itens|length * alt }}" role="img" aria-label="{{ titulo }}: distribuição das notas por pergunta, com a média">
+    {% for x in itens %}
+    {% set y = 2 + loop.index0 * alt %}
+    {% set total = x.dist|sum %}
+    <text x="0" y="{{ y + 2.8 }}" font-size="3" fill="#0E2A3B">{{ x.rotulo[:80] }}{{ '…' if x.rotulo|length > 80 }}</text>
+    <rect x="0" y="{{ y + 4 }}" width="125" height="4.2" fill="#E3ECF0"/>
+    {% if total %}
+    {% set o = namespace(x=0) %}
+    {% for d in x.dist %}
+      {% if d %}
+      {% set w = 125 * d / total %}
+      <rect x="{{ '%.2f'|format(o.x) }}" y="{{ y + 4 }}" width="{{ '%.2f'|format(w) }}" height="4.2" fill="{{ cores[loop.index0] }}"/>
+      {% if w > 5 %}<text x="{{ '%.2f'|format(o.x + w / 2) }}" y="{{ y + 7.1 }}" text-anchor="middle" font-size="2.8" font-weight="700" fill="#fff">{{ d }}</text>{% endif %}
+      {% set o.x = o.x + w %}
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+    <text x="128" y="{{ y + 7.4 }}" font-size="3.6" font-weight="800" fill="#0E2A3B">{{ ('%.1f'|format(x.media))|replace('.', ',') if x.media is not none else '—' }}</text>
+    {% if x.na %}<text x="140" y="{{ y + 7.4 }}" font-size="2.6" fill="#4A6172">{{ x.na }} N/A</text>{% endif %}
+    {% endfor %}
+  </svg>
+  <ul class="legenda">
+    {% for v, nome in niveis %}<li><i class="{{ classes[loop.index0] }}"></i>{{ v }} {{ nome }}</li>{% endfor %}
+  </ul>
+</figure>

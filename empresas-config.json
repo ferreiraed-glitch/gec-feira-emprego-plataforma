@@ -1,0 +1,28 @@
+{
+  "_nota": "Dados das empresas para a marcação de entrevistas, fornecidos pelo utilizador a 23 Set 2026. Desde 30 Set 2026 todas começam às 09:30 (antes 10:00) e entrevistam até às 13:00. n_entrevistadores = nº de RH presentes. capacidade_maxima = nº de candidatos aceites (nº de entrevistas possíveis das 10:00 às 13:00 +30%, prevendo faltas; não foi recalculada com a antecipação); tem de coincidir com CAPACITY em r1_capacidade.py.",
+  "_nota_lidl": "LIDL começa às 09:40 e não às 09:30: já tinha 9 entrevistas marcadas das 10:00 às 12:40 e, com entrevistas de 20 min, uma grelha a partir das 09:30 (09:30, 09:50, 10:10…) ficava desalinhada e sobreposta a essas marcações.",
+  "_nota_inditex": "INDITEX: máximo de 8 candidaturas (confirmado a 1 Out 2026). Entre 30 Set e 1 Out esteve a 11, por um pedido de mais 2 que afinal não se confirmou.",
+  "_nota_lidl_vagas": "LIDL: capacidade de 12 para 10 a 6 Out 2026 (menos 2 vagas, pedido da coordenação). Com 11 inscrições activas nesse dia, o R1 retira-a do formulário; o excesso resolve-se na validação.",
+  "_nota_corte_ingles": "EL CORTE INGLÉS: capacidade de 31 para 35 a 8 Out 2026 (mais 4 vagas, a pedido dos RH da empresa). Com 30 inscrições nesse dia, ficaram 5 lugares abertos no formulário.",
+  "hora_inicio": "09:30",
+  "hora_fim": "13:00",
+  "_nota_tolerancia": "slots_tolerancia: horários a mais depois do último que acaba às 13:00, assinalados a laranja no dashboard (29 Set 2026, 2 em todas as empresas). Pode definir-se por empresa. Não mexe na capacidade.",
+  "slots_tolerancia": 2,
+  "_nota_tecnicos": "tecnicos: id_tecnico dos técnicos validadores da empresa (2 Out 2026). A sincronização atribui-lhes as candidaturas que chegam sem técnico; com dois, vai para o que tem menos nessa empresa. O id tem de ter link activo (fe2026-tokens listar). Sem tecnicos (McDONALD'S, que desistiu), as candidaturas ficam sem técnico. Mudar aqui só afecta as candidaturas seguintes: as já atribuídas reatribuem-se no dashboard.",
+  "empresas": {
+    "EL CORTE INGLÉS":                              {"n_entrevistadores": 2, "duracao_entrevista_min": 15, "capacidade_maxima": 35, "tecnicos": ["T08", "T04"]},
+    "MERISTEMA":                                    {"n_entrevistadores": 1, "duracao_entrevista_min": 10, "capacidade_maxima": 23, "tecnicos": ["AnaA"]},
+    "PRIMEFOOD":                                    {"n_entrevistadores": 1, "duracao_entrevista_min": 20, "capacidade_maxima": 12, "tecnicos": ["T01"]},
+    "SANTA CASA DA MISERICÓRDIA DE LISBOA (SCML)":  {"n_entrevistadores": 2, "duracao_entrevista_min": 20, "capacidade_maxima": 23, "tecnicos": ["MarisaD"]},
+    "SCML Babysitting":                             {"n_entrevistadores": 2, "duracao_entrevista_min": 15, "capacidade_maxima": 31, "tecnicos": ["T07"]},
+    "HORAS DE SONHO":                               {"n_entrevistadores": 1, "duracao_entrevista_min": 15, "capacidade_maxima": 16, "tecnicos": ["T02"]},
+    "PLATEFORM":                                    {"n_entrevistadores": 2, "duracao_entrevista_min": 10, "capacidade_maxima": 47, "tecnicos": ["T06"]},
+    "STRONG CHARON":                                {"n_entrevistadores": 1, "duracao_entrevista_min": 15, "capacidade_maxima": 16, "tecnicos": ["T03"]},
+    "INDITEX":                                      {"n_entrevistadores": 1, "duracao_entrevista_min": 30, "capacidade_maxima": 8, "tecnicos": ["T05"]},
+    "LIDL":                                         {"n_entrevistadores": 1, "duracao_entrevista_min": 20, "capacidade_maxima": 10, "hora_inicio": "09:40", "tecnicos": ["T05"]},
+    "STEAM":                                        {"n_entrevistadores": 1, "duracao_entrevista_min": 15, "capacidade_maxima": 16, "tecnicos": ["RitaVA"]},
+    "DOMINO'S PIZZA":                               {"n_entrevistadores": 2, "duracao_entrevista_min": 15, "capacidade_maxima": 31, "tecnicos": ["T05"]},
+    "HORTO DO CAMPO GRANDE":                        {"n_entrevistadores": 2, "duracao_entrevista_min": 10, "capacidade_maxima": 47, "tecnicos": ["T05"]},
+    "McDONALD'S":                                   {"n_entrevistadores": 2, "duracao_entrevista_min": 15, "capacidade_maxima": 31}
+  }
+}

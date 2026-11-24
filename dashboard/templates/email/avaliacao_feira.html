@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{# Aviso do questionário de avaliação da organização (19 Out 2026), aos técnicos de triagem e de
+   encaminhamento, com os seus links pessoais reenviados (p.triagem e/ou p.entidade). #}
+{% block corpo %}
+<p style="margin:0 0 12px;">{% if nome %}Olá {{ nome }},{% else %}Olá,{% endif %}</p>
+{% if lembrete %}
+<p style="margin:0 0 12px;">Ainda não recebemos a sua avaliação da XI Feira de Emprego de Carnide e a sua opinião faz-nos falta.</p>
+<p style="margin:0 0 12px;">A avaliação é a base da nossa <b>melhoria contínua</b>: é a partir dela que identificamos o que correu bem e deve manter-se, e o que precisa de mudar nas próximas edições. Os técnicos que acompanharam os candidatos e as empresas são quem melhor vê o que funcionou e o que falhou.</p>
+<p style="margin:0 0 12px;">Esta edição trouxe também novidades: a <b>plataforma de gestão (dashboard)</b>, com as inscrições, a triagem, o ponto de situação das candidaturas e a consulta dos candidatos pelas empresas. Precisamos de avaliar o seu impacto, para saber o que deve continuar e o que deve ser melhorado.</p>
+<p style="margin:0 0 12px;">O <b>questionário de avaliação</b> está no seu perfil do dashboard, no botão <b>«Avaliação»</b>, no topo da página. Responde-se em poucos minutos, com uma escala de 1 (Muito mau) a 5 (Muito bom) e algumas perguntas abertas. As notas 1 e 2 podem ser explicadas, se quiser.</p>
+{% else %}
+<p style="margin:0 0 12px;">Obrigado pela colaboração na XI Feira de Emprego de Carnide.</p>
+<p style="margin:0 0 12px;">Para prepararmos as próximas edições, gostaríamos de conhecer a sua opinião sobre a organização da Feira. O <b>questionário de avaliação</b> já está disponível no seu perfil do dashboard, no botão <b>«Avaliação»</b>, no topo da página. São oito aspetos, numa escala de 1 (Muito mau) a 5 (Muito bom), e três perguntas abertas: o que correu bem, o que poderá correr melhor e um espaço para comentários. Leva cerca de cinco minutos.</p>
+{% endif %}
+{% if p.triagem and p.entidade %}<p style="margin:0 0 12px;">Como tem dois acessos, basta responder uma vez: a resposta é a mesma nos dois.</p>{% endif %}
+
+<p style="margin:16px 0 8px;">Para facilitar, reenviamos {{ 'os seus links pessoais' if p.triagem and p.entidade else 'o seu link pessoal' }}:</p>
+{% if p.triagem %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ p.triagem }}" style="display:inline-block;padding:12px 26px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:15px;">Dashboard de triagem</a>
+  </td>
+</tr></table>
+{% endif %}
+{% if p.entidade %}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0;"><tr>
+  <td style="background:#FFC629;border-radius:999px;">
+    <a href="{{ p.entidade }}" style="display:inline-block;padding:12px 26px;color:#0E2A3B;font-weight:700;text-decoration:none;font-size:15px;">Candidatos que inscreveu e acompanhamento</a>
+  </td>
+</tr></table>
+{% elif p.tem_entidade %}
+<p style="margin:0 0 12px;font-size:14px;">O link dos candidatos que inscreveu foi-lhe enviado antes num e-mail com o assunto «XI Feira de Emprego · o seu acesso ao estado dos candidatos que inscreveu».</p>
+{% endif %}
+
+<p style="margin:16px 0 12px;font-size:14px;">{% if p.triagem %}O link de triagem é válido até {{ ate_triagem }}{% if p.entidade %} e o dos candidatos que inscreveu até {{ validade }}{% endif %}.{% else %}O link é válido até {{ validade }}.{% endif %} {% if p.entidade %}No link dos candidatos que inscreveu continua a ter o botão «Acompanhamento», para registar novidades sobre os seus candidatos.{% endif %}</p>
+<p style="margin:0 0 12px;font-size:14px;"><b>{{ 'Os links são pessoais' if p.triagem and p.entidade else 'O link é pessoal' }}:</b> por favor, não {{ 'os' if p.triagem and p.entidade else 'o' }} reencaminhe. Se tiver alguma dificuldade, basta responder a este e-mail.</p>
+<p style="margin:0;font-size:13px;color:#4A6172;">Se os botões não funcionarem, copie o endereço para o browser:{% if p.triagem %}<br>Triagem: <span style="word-break:break-all;">{{ p.triagem }}</span>{% endif %}{% if p.entidade %}<br>Candidatos que inscreveu: <span style="word-break:break-all;">{{ p.entidade }}</span>{% endif %}</p>
+{% endblock %}
+{% block nota_rodape %}Mensagem pessoal enviada pela coordenação da Feira de Emprego. Contém links de acesso individuais: não a reencaminhe.{% endblock %}
