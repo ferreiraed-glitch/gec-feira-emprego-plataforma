@@ -41,6 +41,10 @@ Testaram-se também o HeyForm (a lógica condicional não permite o limite de 3 
 
 A solução trata NIF, documentos, CVs e contactos de candidatos. Quem a usar é responsável pelo RGPD: base legal, prazos, subcontratantes e avaliação de impacto.
 
+## Segurança
+
+Opções de endurecimento para uma stack como esta em [`docs/SEGURANCA.md`](docs/SEGURANCA.md).
+
 ## Licença
 
 Código: [EUPL-1.2](LICENSE). Documentação: [CC BY-SA 4.0](docs/LICENSE-CC-BY-SA-4.0.txt). Marcas e logótipos não estão incluídos nem licenciados.
