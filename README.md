@@ -14,6 +14,8 @@ Solução usada na XI Feira de Emprego de Carnide (13 Out 2026) para receber can
 
 Em 2026 as empresas e as vagas foram recolhidas pelos técnicos e carregadas à mão. O passo seguinte é um formulário de inscrição das empresas (ofertas, requisitos, nº de RH, disponibilidade, duração e limite de entrevistas) que gere o formulário de candidaturas, a agenda e os perfis dos dashboards. Ver [`docs/index.html`](docs/index.html#empresas). Formulário de demonstração (sem dados reais): https://form-gec.cloudkeep.pt/s/cmwul92dx000001owwm5qm8dc
 
+**Demonstração do formulário de candidaturas** (dados fictícios): <https://form-gec.cloudkeep.pt/s/cmww1f7bv000401mpzfy7h4sm>. Gerado por `criar_formulario_candidaturas_demo.py`; o formulário real de 2026 está encerrado.
+
 ## Alternativas ao Formbricks
 
 Testaram-se também o HeyForm (a lógica condicional não permite o limite de 3 empresas em tempo real) e o LimeSurvey (quotas nativas e gratuitas, mas pouco adequado a alterar o formulário em produção e com backoffice mais pesado). Só o exportador e o R1 dependem do Formbricks. Detalhe em [`docs/index.html`](docs/index.html#alt).
